@@ -13,6 +13,16 @@ StudyPadi enhances comprehension through active learning and self-testing, turni
 
 StudyPadi is more than a quiz app; it’s a learning ecosystem designed to help users prepare for exams and assessments by providing a customized and interactive learning experience.
 
+## Project
+
+### Technlogies and packages used
+- MySQL database
+- Redis cache and message broker
+- Celery: Asynchronous task queue. Used to handle sending OTP to email using redis as the broker
+- pyotp: For generating Time based OTP
+- django rest framework
+- django rest framework simple jwt
+
 ## API Documentation
 
 ### Account Authentication
