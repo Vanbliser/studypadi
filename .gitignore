@@ -136,3 +136,9 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+# exclude .environ secret store file
+.environ
+
+# exclude all file inside the redis-data
+redis-data/*
