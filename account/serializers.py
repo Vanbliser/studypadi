@@ -13,12 +13,24 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'password', 'confirm_password']
+        extra_kwargs = {
+            'email': {'required': True},
+            'first_name': {'required': True},
+            'last_name': {'required': True},
+            'password': {'required': True},
+            'confirm_password': {'required': True},
+        }
 
 
     def validate(self, attrs):
         """check if password and confirm password matches
         """
-
+        # check for additional fields
+        allowed_fields = set(self.fields.keys())
+        extra_fields = set(self.initial_data.keys()) - allowed_fields
+        if extra_fields:
+            raise serializers.ValidationError("Bad request")
+        
         password = attrs.get("password", '')
         confirm_password = attrs.get("confirm_password", "")
         if password != confirm_password:
