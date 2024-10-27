@@ -13,7 +13,7 @@ StudyPadi enhances comprehension through active learning and self-testing, turni
 
 StudyPadi is more than a quiz app; it’s a learning ecosystem designed to help users prepare for exams and assessments by providing a customized and interactive learning experience.
 
-## Project
+## Project Description
 
 ### Technlogies and packages used
 - MySQL database
