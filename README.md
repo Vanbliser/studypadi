@@ -26,21 +26,21 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 
 #### Description
 - Signup: receives the following required fields and returns a user object and a message indicating that an otp has been sent:
-* email
-* first_name
-* last_name
-* password
-* confirm_password 
+  * email
+  * first_name
+  * last_name
+  * password
+  * confirm_password 
 
 - Verify-otp: receives the follwoing required fields and returns json of email and message
-* otp
-* email
+  * otp
+  * email
 
 - Resend-otp: receives an email field and returns json of email and message
 
 - Login: receives the email and password fields and returns  the following fields
-* email
-* first_name
-* last_name
-* access_token
-* refresh_token
+  * email
+  * first_name
+  * last_name
+  * access_token
+  * refresh_token
