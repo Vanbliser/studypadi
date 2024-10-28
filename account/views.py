@@ -1,11 +1,15 @@
 from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
-from .serializers import UserRegisterSerializer, VerifyOTPSerializer, ResendOTPSerializer, LoginSerializer, ForgetPasswordSerializer
+from .serializers import UserRegisterSerializer, VerifyOTPSerializer, ResendOTPSerializer, LoginSerializer, ForgetPasswordSerializer, SetNewPasswordSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .tasks import send_otp, verify_otp, generate_otp
+from .tasks import send_otp, verify_otp, generate_otp, send_email
 from .models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import smart_str, smart_bytes, DjangoUnicodeDecodeError
+from urllib.parse import urlencode
 
 
 # Create your views here.
@@ -27,7 +31,7 @@ class RegisterUserView(GenericAPIView):
             user = serializer.data
             otp = generate_otp(user['email'])
             print(otp)
-            send_otp.delay(otp, user['email'])
+            send_otp(otp, user['email'])
             return Response({
                 'user': user,
                 'message': "An OTP has been sent to the registered email"
@@ -82,20 +86,23 @@ class ResendOTPView(GenericAPIView):
                 return Response({"message": "User already verified", "email": email})
             otp = generate_otp(email)
             print(otp)
-            send_otp.delay(otp, email)
+            send_otp(otp, email)
             return Response({
                 'email': user.email,
                 'message': "An OTP has been sent to the registered email"
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if serializer.is_valid(raise_exception=True):
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TestAuthView(GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -105,3 +112,36 @@ class TestAuthView(GenericAPIView):
             'msg': 'working'
         }
         return Response(data=data, status=status.HTTP_200_OK)
+
+
+class ForgetPasswordView(GenericAPIView):
+    serializer_class = ForgetPasswordSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            email = request.data.get('email')
+            base_url = request.data.get('base_url').rstrip('/')
+            user = User.objects.get(email=email)
+            uidBase64 = urlsafe_base64_encode(smart_bytes(user.id))
+            token = PasswordResetTokenGenerator().make_token(user)
+            query_params = {'user_id': uidBase64, 'token': token}
+            ab_link = f"{base_url}?{urlencode(query_params)}"
+            print(ab_link)
+            body = f"Hi {user.first_name}, use the below link to reset your password\n{ab_link}"
+            subject = "Reset Password"
+            to = [email]
+            #send_email(body=body, subject=subject, to=to)
+            return Response({'message': 'A link has been sent to your email to reset your password'}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SetNewPassword(GenericAPIView):
+    serializer_class = SetNewPasswordSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            return Response({'message': 'Password changed succesfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)

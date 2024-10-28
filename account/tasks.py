@@ -39,10 +39,13 @@ def verify_otp(otp, email):
         return totp.verify(otp)
     return False
 
-@shared_task()
 def send_otp(otp, email):
     user = User.objects.get(email=email)
     subject = "One Time Password"
     body = f"hi {user.first_name}, your OTP is {otp}"
-    email = EmailMessage(subject=subject, body=body, to=[user.email], from_email=FROM_EMAIL)
+    send_email.delay(subject=subject, body=body, to=[user.email])
+
+@shared_task
+def send_email(subject, body, to):
+    email = EmailMessage(subject=subject, body=body, to=to, from_email=FROM_EMAIL)
     email.send(fail_silently=True)
