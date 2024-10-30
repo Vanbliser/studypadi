@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_files:/app/static
+      - media_files:/app/media
+    depends_on:
+      - db
+      - redis
+    command: sh -c "python3 manage.py migrate && python3 manage.py collectstatic --noinput && gunicorn studypadi.wsgi:application --bind 0.0.0.0:8000"
+    restart: unless-stopped
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - web
+      - db
+      - redis
+    command: python3 -m celery -A studypadi worker -l info
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.0
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_files:/app/static
+      - media_files:/app/media
+    ports:
+      - "80:80"
+    depends_on:
+      - celery_worker
+
+volumes:
+  mysql_data:
+  redis_data:
+  static_files:
+  media_files:

@@ -195,3 +195,9 @@ class SetNewPasswordSerializer(serializers.Serializer):
             raise AuthenticationFailed('Invalid or expired link')
         
         return user
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField()
+
+    pass

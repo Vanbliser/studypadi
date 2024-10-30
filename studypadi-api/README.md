@@ -33,6 +33,9 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 - /api/v1/verify-otp/ POST
 - /api/v1/resend-otp/ POST
 - /api/v1/login POST
+- /api/vi/dashboard GET
+- /api/vi/forget-password POST
+- /api/vi/reset POST
 
 #### Description
 - Signup: receives the following required fields and returns a user object and a message indicating that an otp has been sent:
@@ -42,15 +45,46 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
   * password
   * confirm_password 
 
+##### E.g
+
+###### Input
+```
+{
+	"email": "abc1@email.com",
+    "first_name": "Abc",
+    "last_name": "Xyz",
+    "password": "Password123",
+    "confirm_password": "Password123"
+}
+```
+
+###### Output
+```
+{
+  "user": {
+    "email":"abc1@email.com",
+    "first_name":"Abc",
+    "last_name":"Xyz"
+    },
+  "message": "An OTP has been sent to the registered email"
+}
+```
+
+
 - Verify-otp: receives the follwoing required fields and returns json of email and message
   * otp
   * email
 
 - Resend-otp: receives an email field and returns json of email and message
 
-- Login: receives the email and password fields and returns  the following fields
+- Login: receives the email and password fields and returns the following fields
   * email
   * first_name
   * last_name
   * access_token
   * refresh_token
+
+- Dashboard: This is a test endpoint to get a dummy resources that requires authentication. Include an header called Authorisation with a value of "Bearer {access token}"
+
+- Forget-password: 
+
