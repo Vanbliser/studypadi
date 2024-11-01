@@ -1,34 +1,10 @@
-# Webstack - Portfolio Project
-
-## Project Introduction: StudyPadi – Your Personalized Study Partner
-
-StudyPadi is a unique quiz-based study platform designed to enhance the learning experience for students across various fields of study. Unlike traditional quiz apps, StudyPadi acts as both a learning assistant and a study companion, offering an interactive and personalized revision experience. The platform aims to support users by not only serving pre-existing questions but also generating new questions based on user-submitted study materials.
-
-StudyPadi enhances comprehension through active learning and self-testing, turning study sessions into a dynamic and engaging process. It offers features like:
-- **Past Question Banks:** Curates questions from various fields, starting with radiology.
-- **Automated Question Generation:** Leverages AI to create questions from user-provided study content.
-- **Collaborative Learning:** Allows users to create and share quizzes with others, forming study groups.
-- **Scalability:** Supports the creation of new domains and subdomains as the platform grows, adaptable to various fields of study.
-- **And many more**
-
-StudyPadi is more than a quiz app; it’s a learning ecosystem designed to help users prepare for exams and assessments by providing a customized and interactive learning experience.
-
-## Project Description
-
-### Technlogies and packages used
-- MySQL database
-- Redis cache and message broker
-- Celery: Asynchronous task queue. Used to handle sending OTP to email using redis as the broker
-- pyotp: For generating Time based OTP
-- django rest framework
-- django rest framework simple jwt
-
 ## API Documentation
 
 ### Account Authentication
 Implemented 2FA for user creation. an email is sent to the registered email address. Upon login, a JWT access and refresh token is returned. This token should to used to access restricted endpoints
 
 #### Endpoints
+- /test GET
 - /api/v1/signup/ POST
 - /api/v1/verify-otp/ POST
 - /api/v1/resend-otp/ POST
@@ -70,12 +46,41 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 }
 ```
 
-
 - Verify-otp: receives the follwoing required fields and returns json of email and message
   * otp
   * email
+##### E.g
+
+###### Input
+```
+{
+    "otp": 234566,
+    "email": "abc1@email.com"
+}
+```
+###### Output
+```
+{
+    "message": "User already verified",
+    "email": "abc1@email.com"
+}
+```
 
 - Resend-otp: receives an email field and returns json of email and message
+##### E.g
+###### Input
+{
+    "email": "abc1@email.com"
+}
+###### Output
+```
+```
+{
+    "message": "User already verified",
+    "email": "abc1@email.com"
+}
+```
+```
 
 - Login: receives the email and password fields and returns the following fields
   * email
@@ -83,8 +88,65 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
   * last_name
   * access_token
   * refresh_token
+##### E.g
 
+###### Input
+```
+{
+    "password": "123456",
+    "email": "abc1@email.com"
+}
+```
+###### Output
+```
+{
+  "email":"abc1@email.com",
+  "first_name":"Abc",
+  "last_name":"Xyz",
+  "access_token": "<access token>",
+  "refresh_token": "<refresh token>"
+}
+```
 - Dashboard: This is a test endpoint to get a dummy resources that requires authentication. Include an header called Authorisation with a value of "Bearer {access token}"
+##### E.g
+###### Output
+```
+{
+    "msg":"working"
+}
+```
 
-- Forget-password: 
+- Forget-password: Endpoint to initiate a forget password. The base url is the url of the frontend application that calls it. This will be used to generate a reset link that would be sent to the email of the user. Clicking on the link should direct the user to a page in the front end application to reset teir password.
+##### E.g
+###### Input
+```
+{
+    "email": "abc1@email.com",
+    "base_url": "http://127.0.0.1:8000"
+}
+```
+###### Output
+```
+{
+    "message": "A link has been sent to your email to reset your password"
+}
+```
 
+- Reset: Endpoint to reset password. This endpoint wuld be used after a user clicks on the reset link. Valuable information will be gotten from the link and used to formulate this POST request
+##### E.g
+
+###### Input
+```
+{
+    "uidBase64": "OA",
+    "token": "cflxfv-8330b54f6bb9586800374645275ec45c",
+    "new_password": "123456",
+    "confirm_password": "123456"
+}
+```
+###### Output
+```
+{
+    "message": "Password changed succesfully"
+}
+```
