@@ -1,9 +1,9 @@
-## API Documentation
+# API Documentation
 
-### Account Authentication
+## Account Authentication
 Implemented 2FA for user creation. an email is sent to the registered email address. Upon login, a JWT access and refresh token is returned. This token should to used to access restricted endpoints
 
-#### Endpoints
+### Endpoints
 - /test GET
 - /api/v1/signup/ POST
 - /api/v1/verify-otp/ POST
@@ -13,7 +13,9 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 - /api/vi/forget-password POST
 - /api/vi/reset POST
 
-#### Description
+### Description
+- Test: a get request to test if the application is receiving request
+
 - Signup: receives the following required fields and returns a user object and a message indicating that an otp has been sent:
   * email
   * first_name
