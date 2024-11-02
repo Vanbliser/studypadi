@@ -5,7 +5,8 @@ from .models import User
 import validators
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_decode
-from django.utils.encoding import force_str, DjangoUnicodeDecodeError
+from django.utils.encoding import force_str
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     """user registration serializer
@@ -119,7 +120,7 @@ class LoginSerializer(serializers.ModelSerializer):
         if not user.is_verified:
             raise AuthenticationFailed("Email not verified")
         token = user.tokens()
-
+        user.record_login()
         return {
             'email': user.email,
             'first_name': user.first_name,
@@ -199,5 +200,22 @@ class SetNewPasswordSerializer(serializers.Serializer):
 
 class LogoutSerializer(serializers.Serializer):
     refresh_token = serializers.CharField()
-
-    pass
+    
+    class Meta:
+        fields = ["refresh_token"]
+        extra_kwargs = {
+            "refresh_token": {"required": True}
+        }
+    def validate(self, attrs):
+        allowed_fields = set(self.fields.keys())
+        extra_fields = set(self.initial_data.keys()) - allowed_fields
+        if extra_fields:
+            raise serializers.ValidationError("Bad request. Unknown field(s).")
+        try:
+            refresh_token = attrs.get("refresh_token")
+            token=RefreshToken(refresh_token)
+            token.blacklist()
+        except TokenError:
+            raise serializers.ValidationError("Bad token.")
+        return attrs
+    

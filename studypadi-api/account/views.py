@@ -7,8 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from .tasks import send_otp, verify_otp, generate_otp, send_email
 from .models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import smart_str, smart_bytes, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import smart_bytes
 from urllib.parse import urlencode
 
 
@@ -131,7 +131,7 @@ class ForgetPasswordView(GenericAPIView):
             body = f"Hi {user.first_name}, use the below link to reset your password\n{ab_link}"
             subject = "Reset Password"
             to = [email]
-            #send_email(body=body, subject=subject, to=to)
+            send_email(body=body, subject=subject, to=to)
             return Response({'message': 'A link has been sent to your email to reset your password'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -152,4 +152,10 @@ class LogoutView(GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        pass
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
