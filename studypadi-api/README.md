@@ -169,12 +169,12 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 - Test-auth: This is a test endpoint to get a dummy resources that requires authentication. Include an header called Authorisation with a value of "Bearer {access token}"
   ##### E.g
   ###### Http header
-  Authorization Bearer <access token>
-
+  ```
+  Authorization Bearer "<access token>"
+  ```
   ###### Output
   ```
   {
     "msg":"working"
   }
   ```
-  
