@@ -1,15 +1,15 @@
 /* General dashboard styling */
 .dashboard {
     display: flex;
-    height: 100vh;
     font-family: var(--font-trocchi);
-    background-color: #0E0E0E;
+    background-color: rgba(56, 53, 53, 0.9);
+  
   }
   
   /* Sidebar styles */
   .sidebar {
     flex: 1;
-    background-color: #1b212c;
+    background-color: rgba(22, 21, 21, 0.9);
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -44,19 +44,24 @@
   
   .sidebar nav ul li {
     padding: 10px;
-    text-align: center;
+    
   }
   
   .sidebar nav ul li a {
-    color: #82c7a5;
+    color: #fff;
     text-decoration: none;
+
+  }
+
+  .sidebar nav ul li .ssvg {
+    padding-right: 10px;
   }
   
   /* Main content styles */
   .main-content {
     display: flex;
-    flex: 4;
-    background: #0E0E0E;
+    flex: 5;
+    background: rgba(33,33,33,.9);
     padding: 20px;
   }
   
@@ -75,8 +80,12 @@
     margin-bottom:10px ;
   }
   
+  .hello {
+    margin-top: 20px;
+  }
   .greeting-section {
    margin-bottom: 40px;
+   
   }
   
   .greeting-section h2 {
@@ -86,7 +95,7 @@
   .recent-quizzes, .recent-modules {
     margin-top: 5px;
     margin-bottom: 50px;
-    background: #4a4c52;
+    background: black;
     padding: 15px;
     border-radius: 8px;
     min-height: 200px;
@@ -100,7 +109,7 @@
   .recent-modules {
     margin-top: 5px;
     margin-bottom: 50px;
-    background: #4a4c52;
+    background: black;
     padding: 15px;
     border-radius: 8px;
     min-height: 150px;
@@ -113,7 +122,7 @@
   }
   
   .calendar {
-    background: #fff;
+    background: #50506d;
     padding: 15px;
     margin-bottom: 20px;
     border-radius: 8px;
@@ -125,13 +134,43 @@
   }
   
   .recent-uploads {
-    background: #fff;
+    background: #383434;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    min-height: 460px;
   }
   
   .recent-uploads h3 {
     font-family: var(--font-trochut-bold);
+  }
+  .stats {
+    background: #383434;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+
+  }
+
+  .stats div {
+    text-align: center;
+    background: linear-gradient(to right, #ff9a9e, #e45c36);
+    text-align: center;
+    
+    justify-content: center;
+    align-items: center; /* Added this line to center vertically */
+    height: 75px;
+    width:175px ;
+    border-radius: 15px;
+  }
+
+  .stats div h3 {
+    font-family: var(--font-trochut-bold);
+    font-size: 1.5rem;
+    color: #fff;
+    border: 15px;
   }
   

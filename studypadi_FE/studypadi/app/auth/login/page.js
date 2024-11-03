@@ -1,16 +1,28 @@
-
+// app/auth/login/page.js
 "use client";
 import React, { useState } from 'react';
 import useAuthStore from '../../store/authStore';
+import { useRouter } from 'next/navigation';
 
 
 const LoginPage = () => {
+    const router = useRouter();
     const [email, setemail] = useState('');
     const [password, setPassword] = useState('');
     const login = useAuthStore((state) => state.login);
     const [message, setMessage] = useState('');
     
     const url = 'http://localhost:8000/api/v1/login/';
+
+    
+
+    const handleReset = async (e) => {
+        e.preventDefault();
+        
+        router.push('/forgot_password')
+        
+    }
+
 
 
     const handleSubmit = async (e) => {
@@ -32,9 +44,11 @@ const LoginPage = () => {
           login(data.access_token, data.refresh_token, data.first_name)// Store token in zustand state
           setMessage('Login successful')
           console.log(data)
-          window.location.href = '/dashboard';
+          router.push('/dashboard')
+          //window.location.href = '/dashboard';
       };
     }
+    
 
     return (
         <div className="form">
@@ -57,6 +71,7 @@ const LoginPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <button type="submit">LOG In</button>
+                <a className='forgotPassword' onClick={handleReset}>Forgot password ?</a>
             </form>
         </div>
     );

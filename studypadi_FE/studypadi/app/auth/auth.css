@@ -142,3 +142,10 @@ body, html {
     font-size: 1em;
     cursor: pointer;
 }
+
+.forgotPassword {
+    font-size: 0.8em;
+    color: #B0B0B0;
+    margin-top: 10px;
+    float: right;
+}
