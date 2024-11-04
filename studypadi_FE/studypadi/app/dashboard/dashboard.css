@@ -1,14 +1,53 @@
+/* HEader dashboard styling */
+
 /* General dashboard styling */
 .dashboard {
     display: flex;
-    font-family: var(--font-trocchi);
+    font-family: Arial, Helvetica, sans-serif;
     background-color: rgba(56, 53, 53, 0.9);
+    min-height: 100vh;
   
   }
   
+  /* header component */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background-color: rgba(33,33,33,.9);
+  color: #fff;
+}
+
+.logo h2 {
+  font-size: 24px;
+  color: #82C7A5;
+}
+
+.theme-toggle button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-pic {
+  border-radius: 50%;
+}
+
+.logout-icon {
+  cursor: pointer;
+}
+
   /* Sidebar styles */
   .sidebar {
-    flex: 1;
+    flex: 1.5;
     background-color: rgba(22, 21, 21, 0.9);
     color: #fff;
     display: flex;
@@ -59,15 +98,21 @@
   
   /* Main content styles */
   .main-content {
-    display: flex;
-    flex: 5;
+    
+    flex: 7;
     background: rgba(33,33,33,.9);
     padding: 20px;
+  }
+
+  .dashboardContent {
+    display: flex;
+    gap: 20px;
   }
   
   .main-column {
     flex: 3;
     margin-right: 20px;
+    flex-direction: column;
   }
   
   .search-bar input {
@@ -117,8 +162,9 @@
   }
   
   /* Third column styles */
-  .third-column {
+  .secondaryColumn {
     flex: 2;
+    flex-direction: column;
   }
   
   .calendar {
@@ -141,9 +187,7 @@
     min-height: 460px;
   }
   
-  .recent-uploads h3 {
-    font-family: var(--font-trochut-bold);
-  }
+ 
   .stats {
     background: #383434;
     padding: 15px;
@@ -168,7 +212,6 @@
   }
 
   .stats div h3 {
-    font-family: var(--font-trochut-bold);
     font-size: 1.5rem;
     color: #fff;
     border: 15px;

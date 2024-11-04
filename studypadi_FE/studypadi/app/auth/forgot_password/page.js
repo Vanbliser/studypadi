@@ -1,11 +1,14 @@
 "use client";
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 
 const ForgetPassword = () => {
     const [email, setemail] = useState('');
+    const [message, setMessage] = useState('');
     const resetUrl = 'http://localhost:8000/api/vi/forget-password/'; // This is the forget password BE endpoint
+
+    const base_url = 'http://localhost:3000/auth/reset'; // This is the base url of the frontend
 
     const router = useRouter();
 
@@ -20,14 +23,21 @@ const ForgetPassword = () => {
               { 'email': email, 'base_url': base_url }),
         });
         if (!response.ok) {
+           
             setMessage(String(response.statusText) || "An error occurred during login.");
         }
         else {
-          const data = await response.json();
-          setMessage(data.message)
-          
-          //redirect user to the reset password page form
-          router.push('/reset')
+            return(
+                <div>
+                    <p>A mail with the Reset link has just been sent to your mail</p>
+                    <p>Kidly check your mail and follow the link to reset your password</p>
+                </div>
+            )
+        //  const data = await response.json();
+        //  setMessage(data.message)
+        //  
+        //  //redirect user to the reset password page form
+        //  router.push('/reset')
         }
     }
 

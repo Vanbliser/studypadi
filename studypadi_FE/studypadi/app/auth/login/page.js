@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import useAuthStore from '../../store/authStore';
 import { useRouter } from 'next/navigation';
+import '../module.auth.css';
 
 
 const LoginPage = () => {
@@ -19,7 +20,7 @@ const LoginPage = () => {
     const handleReset = async (e) => {
         e.preventDefault();
         
-        router.push('/forgot_password')
+        router.push('/auth/forgot_password')
         
     }
 
@@ -41,9 +42,15 @@ const LoginPage = () => {
         }
         else {
           const data = await response.json();
-          login(data.access_token, data.refresh_token, data.first_name)// Store token in zustand state
-          setMessage('Login successful')
           console.log(data)
+          login(data.access_token, data.refresh_token, data.first_name)// Store token in zustand state
+         // router.push({
+         //   pathname: '/dashboard',
+         //   query: { message: 'Login successful!' } // Pass message here
+         // });
+          //setMessage('Login successful')
+          //console.log(data)
+          //router.push(`/dashboard?message=${data.first_name}`) this is how you pass param to the url query 
           router.push('/dashboard')
           //window.location.href = '/dashboard';
       };

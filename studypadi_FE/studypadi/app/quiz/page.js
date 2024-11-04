@@ -1,37 +1,77 @@
-import React from 'react';
-import Sidebar from '../dashboard/sidebar';
+// /quiz configuration form
+import { useState, useEffect } from 'react';
 
-const QuizzesPage = () => (
-  <div className="quizzes-page">
-    <Sidebar />
-    <main className="quiz-container">
-      <header className="quiz-header">
-        <h1>StudyPadi</h1>
-        <div className="user-controls">
-          <img src="/path/to/profile.jpg" alt="Profile" className="profile-pic" />
-          <button className="logout-button">Logout</button>
-        </div>
-      </header>
-      <section className="quiz-content">
-        <h2>Quiz Topic: Biology Basics</h2>
-        <div className="question-section">
-          <p>Q1. What is the powerhouse of the cell?</p>
-        </div>
-        <div className="answer-options">
-          <button>Option A: Nucleus</button>
-          <button>Option B: Mitochondria</button>
-          <button>Option C: Ribosome</button>
-          <button>Option D: Chloroplast</button>
-        </div>
-        <div className="question-nav">
-          <div className="question-box answered">1</div>
-          <div className="question-box unanswered">2</div>
-          <div className="question-box unanswered">3</div>
-          {/* Additional question boxes as needed */}
-        </div>
-      </section>
-    </main>
-  </div>
-);
+const QuizConfig = () => {
+  const [modules, setModules] = useState([]);
+  const [submodules, setSubmodules] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [quizType, setQuizType] = useState('past');
+  const [algorithm, setAlgorithm] = useState('random');
+  const [instantCorrection, setInstantCorrection] = useState(false);
 
-export default QuizzesPage;
+  useEffect(() => {
+    // Fetch data from DB
+    fetchModules();
+    fetchSubmodules();
+    fetchSections();
+  }, []);
+
+  const handleSubmit = () => {
+    // Submit form and route to /quiz/section/id with selected options
+  };
+
+  return (
+    <DashboardLayout>
+      <div className="quiz-config-container dark-theme">
+        <h1>Select Quiz Configuration</h1>
+        <form onSubmit={handleSubmit}>
+          <label>Module</label>
+          <select onChange={e => setModule(e.target.value)}>
+            {modules.map((module) => (
+              <option key={module.id} value={module.id}>{module.name}</option>
+            ))}
+          </select>
+
+          <label>Submodule</label>
+          <select onChange={e => setSubmodule(e.target.value)}>
+            {submodules.map((sub) => (
+              <option key={sub.id} value={sub.id}>{sub.name}</option>
+            ))}
+          </select>
+
+          <label>Section</label>
+          <select onChange={e => setSection(e.target.value)}>
+            {sections.map((section) => (
+              <option key={section.id} value={section.id}>{section.name}</option>
+            ))}
+          </select>
+
+          <label>Quiz Type</label>
+          <select onChange={e => setQuizType(e.target.value)}>
+            <option value="past">Past Quiz</option>
+            <option value="special">Educator Special</option>
+          </select>
+
+          <label>Question Generation Algorithm</label>
+          <select onChange={e => setAlgorithm(e.target.value)}>
+            <option value="random">Random</option>
+            <option value="leastAttempted">Least Attempted</option>
+            <option value="mostFailed">Most Failed</option>
+            <option value="neverAttempted">Never Attempted</option>
+          </select>
+
+          <label>Instant Correction</label>
+          <input
+            type="checkbox"
+            checked={instantCorrection}
+            onChange={() => setInstantCorrection(!instantCorrection)}
+          />
+
+          <button type="submit">Start Quiz</button>
+        </form>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default QuizConfig;

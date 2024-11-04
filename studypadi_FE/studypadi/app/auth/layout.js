@@ -1,8 +1,8 @@
 import React from 'react';
-import './auth.css';
+import './module.auth.css';
 
 const AuthLayout = ({ children }) => (
-    <div className="container">
+    <div className="authContainer">
         <div className="left-column">
             <div className="logo">
                 <h1>StudyPadi</h1>

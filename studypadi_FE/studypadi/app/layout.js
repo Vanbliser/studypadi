@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import Authorization from "./authorization";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -50,7 +51,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${trochut}`}>
+      <Authorization>
         {children}
+      </Authorization>  
       </body>
     </html>
   );

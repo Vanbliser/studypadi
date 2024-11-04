@@ -1,11 +1,16 @@
 'use client';
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faBook, faQuestionCircle, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faBook, faQuestionCircle, faCog ,} from '@fortawesome/free-solid-svg-icons';
+import { faDatabase, faListCheck, faChalkboardTeacher } from '@fortawesome/free-solid-svg-icons';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 
 const Sidebar = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const pathname = usePathname();
+
+  const isActive = (path) => pathname === path;
   
 
   return (
@@ -13,38 +18,52 @@ const Sidebar = () => {
       {/* Sidebar Header should come here when the Logo is already - remeber pls - */}
      <nav>
           <ul>
-            <li>
-              <a href="#dashboard">
+            <li className={isActive('#dashboard') ? 'active' : ''}>
+              <Link href="/dashboard">
+              <a>
                 <FontAwesomeIcon className='ssvg' icon={faHome} />
                 <span>Dashboard</span>
               </a>
+              </Link>
+
               
             </li>
             <hr />
-            <li>
-              <a href="#modules">
-                <FontAwesomeIcon className='ssvg' icon={faBook} />
-                <span>Modules</span>
+            <li className={isActive('#questionBank') ? 'active' : ''}>
+              <Link href="/questionBank">
+              <a >
+                <FontAwesomeIcon className='ssvg' icon={faDatabase} />
+                <span>Question Bank</span>              
               </a>
+              </Link>
             </li>
-            <li>
-              <a href="#quizzes">
-                <FontAwesomeIcon className='ssvg' icon={faQuestionCircle} />
+            <li className={isActive('#quizzes') ? 'active' : ''}>
+              <Link href="/quiz">
+              <a>
+                <FontAwesomeIcon className='ssvg' icon={faListCheck} />
                 <span>Quizzes</span>
               </a>
+              </Link>
             </li>
-            <li>
-              <a href="#quizzes">
-                <FontAwesomeIcon className='ssvg' icon={faQuestionCircle} />
-                <span>Test</span>
+
+            <li className={isActive('#test') ? 'active' : ''}>
+              <Link href="/test">
+              <a>
+                <FontAwesomeIcon className='ssvg' icon={faChalkboardTeacher} />
+                <span>Revision Test</span>
+
               </a>
+              </Link>
             </li>
             <hr />
-            <li>
-              <a href="#settings">
+            <li className={isActive('#settings') ? 'active' : ''}>
+              <Link href="/dashboard">
+              <a>
                 <FontAwesomeIcon className='ssvg' icon={faCog} />
                 <span>Settings</span>
               </a>
+              </Link>
+
             </li>
           </ul>
         </nav>

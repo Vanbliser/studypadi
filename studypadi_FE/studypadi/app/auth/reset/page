@@ -1,0 +1,68 @@
+"use client";
+import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+
+const resetPassword = () => {
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const resetUrl = 'http://localhost:8000/api/vi/forget-password/'; // This is the forget password BE endpoint
+
+    const searchParams = useSearchParams();
+    const user_id = searchParams.get('user_id');
+    const token = searchParams.get('token');
+    console.log('test', user_id, token);
+
+    const router = useRouter();
+
+    const handleReset = async (e) => {
+        e.preventDefault();
+        const response = await fetch(resetUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(
+              { 'uidBase64': user_id, 'token': token, 'password': password, 'confirm_password': confirmPassword }),
+        });
+        if (!response.ok) {
+            setMessage(String(response.statusText) || "An error occurred during Password Reset.");
+        }
+        else {
+          const data = await response.json();
+          setMessage(data.message)
+          
+          //redirect user to the reset password page form
+          router.push('/auth/login')
+        }
+    }
+
+
+    return (
+        <div className="form">
+            <h2>Reset Password</h2>
+            <br></br>
+            {message && <p>{message}</p>}
+            <form onSubmit={handleReset}>
+            <label htmlFor="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <label htmlFor="confirmPassword">Confirm Password</label>
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <br></br>
+                <button type="submit">Reset password</button>
+            </form>
+        </div>
+    );
+};
+
+export default resetPassword;
