@@ -1,3 +1,6 @@
+'use client';
+import { useState } from "react";
+import DashboardLayout from '../../dashboard/dashboardLayout'
 const QuizSection = () => {
     const [timer, setTimer] = useState(0); // A timer state that counts down/up.
     const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -25,7 +28,7 @@ const QuizSection = () => {
           <div className="quiz-controls">
             <button onClick={() => setCurrentQuestion(currentQuestion - 1)}>Previous</button>
             <button onClick={() => setCurrentQuestion(currentQuestion + 1)}>Next</button>
-            <button onClick={/* Submit logic */}>Submit Quiz</button>
+            <button >Submit Quiz</button>
           </div>
         </div>
       </DashboardLayout>

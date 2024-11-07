@@ -57,3 +57,41 @@
     background-color: #6ab08d;
   }
   
+
+/* Selection Fields Styling */
+.selection-fields label{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    color: #fff;
+}
+
+/* Success Modal */
+.success-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #1c1e22;
+    color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.success-modal button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #82C7A5;
+    border: none;
+    color: #180303;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.success-modal button:hover {
+    background-color: #6ab08d;
+}

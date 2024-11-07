@@ -1,6 +1,6 @@
 /* Dark theme styling */
 .dark-theme {
-    background-color: #1B212C;
+    background-color: black;
     color: #FFFFFF;
     padding: 20px;
     border-radius: 8px;
@@ -27,4 +27,70 @@
   .quiz-controls button:hover, form button:hover {
     background-color: #82C7A5;
   }
+
+.quiz-form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.quiz-form label, .quiz-form select, .quiz-form input[type="text"] {
+  margin-bottom: 10px;
+  background-color: #141414;
+  color: #FFF;
+}
+
+.quiz-config-container {
+  background-color: black;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.quiz-controls button, form button {
+  grid-column: span 3;
+  background-color: #0E53AC;
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 16px;
+  margin: 5px;
+  border-radius: 4px;
+}
+
+.quiz-controls button:hover, form button:hover {
+  background-color: #82C7A5;
+}
+
+
+
+/* new styling */
+.quiz-form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
   
+  .quiz-form label, .quiz-form select, .quiz-form input[type="text"] {
+    margin-bottom: 10px;
+    background-color: #141414;
+    color: #FFF;
+  }
+  
+  .quiz-config-container {
+    background-color: black;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .quiz-controls button, form button {
+    grid-column: span 3;
+    background-color: #0E53AC;
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 16px;
+    margin: 5px;
+    border-radius: 4px;
+  }
+  
+  .quiz-controls button:hover, form button:hover {
+    background-color: #82C7A5;
+  }

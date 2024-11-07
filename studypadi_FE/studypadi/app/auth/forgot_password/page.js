@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 
 const ForgetPassword = () => {
@@ -57,6 +58,10 @@ const ForgetPassword = () => {
                 />
                 <br></br>
                 <button type="submit">Forgot password</button>
+                <Link className='signup'
+                        href={'/auth/login'}>
+                        <span>{'<<<'} Go back to Login</span>
+                </Link>
             </form>
         </div>
     );

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import useAuthStore from '../../store/authStore';
 import { useRouter } from 'next/navigation';
 import '../module.auth.css';
+import Link from 'next/link';
 
 
 const LoginPage = () => {
@@ -78,7 +79,13 @@ const LoginPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <button type="submit">LOG In</button>
-                <a className='forgotPassword' onClick={handleReset}>Forgot password ?</a>
+                <div className='other_links'>
+                    <Link className='signup'
+                        href={'/auth/register'}>
+                        <span>Sign Up</span>
+                    </Link>
+                    <a className='forgotPassword' onClick={handleReset}>Forgot password ?</a>
+                </div>
             </form>
         </div>
     );

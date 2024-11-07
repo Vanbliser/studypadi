@@ -2,6 +2,7 @@
 
 "use client";
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 const SignUpPage = () => {
     const [email, setEmail] = useState('');
@@ -101,6 +102,11 @@ const SignUpPage = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                 />
                 <button type="submit">Register</button>
+
+                <Link className='signup'
+                        href={'/auth/login'}>
+                        <span>Registered Already? Sign In !!!</span>
+                </Link>
             </form>
         </div>
     );
