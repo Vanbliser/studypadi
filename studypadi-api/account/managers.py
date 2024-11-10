@@ -6,9 +6,6 @@ from django.contrib.auth.models import BaseUserManager
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.utils.translation import gettext_lazy as _
-from django.core.cache import cache
-from django.conf import settings
-import pyotp
 
 
 class UserManager(BaseUserManager):
@@ -49,14 +46,18 @@ class UserManager(BaseUserManager):
         """Create super admin
         """
 
-        extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_verified", True)
+        extra_fields.setdefault("user_role", 'SUP')
+        extra_fields.setdefault("is_superuser", True)
 
-        if extra_fields.get("is_superuser") is not True:
-            raise ValueError(_("is superuser must be true for admin user"))
+        if extra_fields.get("user_role") != 'SUP':
+            raise ValueError(_("superuser must have a SUP role"))
 
         if extra_fields.get("is_verified") is not True:
             raise ValueError(_("is verified must be true for admin user"))
+        
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError(_("is superuser must be true for admin user"))
 
         user = self.create_user(email, first_name, last_name, password, **extra_fields)
         return user

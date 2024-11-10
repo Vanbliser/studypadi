@@ -16,6 +16,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     """User model
     """
 
+    user_roles = [
+        ('STU', 'Student'),
+        ('EDU', 'Educator'),
+        ('SUP', 'Superuser'),
+        ('AIG', 'Gen_AI')
+    ]
+
     email = models.EmailField(max_length=255, unique=True, verbose_name=_("Email Address"))
     first_name = models.CharField(max_length=100, verbose_name=_("First Name"))
     last_name = models.CharField(max_length=100, verbose_name=_("Last Name"))
@@ -24,7 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_login = models.DateTimeField(default=timezone.now)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    is_superuser = models.BooleanField(default=False)
+    user_role = models.CharField(max_length=3, choices=user_roles, default='STU')
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
