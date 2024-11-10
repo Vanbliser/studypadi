@@ -108,8 +108,12 @@ class TestAuthView(GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        email = request.user
+        user = user = User.objects.get(email=email)
         data = {
-            'msg': 'working'
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
         }
         return Response(data=data, status=status.HTTP_200_OK)
 
