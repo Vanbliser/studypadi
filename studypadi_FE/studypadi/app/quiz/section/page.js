@@ -1,10 +1,24 @@
 'use client';
 import { useState } from "react";
 import DashboardLayout from '../../dashboard/dashboardLayout'
+import { mockData } from '../../mockData';
+import { useRouter, useSearchParams } from 'next/navigation';
+
 const QuizSection = () => {
     const [timer, setTimer] = useState(0); // A timer state that counts down/up.
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState({});
+
+
+    const searchParams = useSearchParams();
+
+    const module = searchParams.get('module');
+    const submodule = searchParams.get('submodule');
+    const section = searchParams.get('section');
+    const quizType = searchParams.get('quizType');
+    const algorithm = searchParams.get('algorithm');
+    const instantCorrection = searchParams.get('instantCorrection');
+    const quizName = searchParams.get('quizName');
   
     const handleAnswer = (answer) => {
       setAnswers({ ...answers, [currentQuestion]: answer });
