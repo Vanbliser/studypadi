@@ -1,9 +1,10 @@
 // pages/index.js
-
+'use client';
 import Image from "next/image";
 import Link from "next/link";
 import { Carousel } from "react-responsive-carousel"; // Ensure to install a carousel component or create your own
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // Styles for carousel
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+
 
 export default function HomePage() {
   return (

@@ -1,53 +1,118 @@
+// app/quiz/section/page.js
 'use client';
-import { useState } from "react";
-import DashboardLayout from '../../dashboard/dashboardLayout'
-import { mockData } from '../../mockData';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import QuizTimer from './QuizTimer';
+import QuestionCard from './QuestionCard';
+import QuestionNavigator from './QuestionNavigator';
+import { mockQuiz } from '../../mockData';
+import './quizStyle.css';
+import DashboardLayout from '../../dashboard/dashboardLayout';
+import { useQuizStore } from '../../store/quizStore'; // Zustand store
 
-const QuizSection = () => {
-    const [timer, setTimer] = useState(0); // A timer state that counts down/up.
-    const [currentQuestion, setCurrentQuestion] = useState(0);
-    const [answers, setAnswers] = useState({});
 
-
-    const searchParams = useSearchParams();
-
-    const module = searchParams.get('module');
-    const submodule = searchParams.get('submodule');
-    const section = searchParams.get('section');
-    const quizType = searchParams.get('quizType');
-    const algorithm = searchParams.get('algorithm');
-    const instantCorrection = searchParams.get('instantCorrection');
-    const quizName = searchParams.get('quizName');
-  
-    const handleAnswer = (answer) => {
-      setAnswers({ ...answers, [currentQuestion]: answer });
-    };
-  
-    return (
-      <DashboardLayout>
-        <div className="quiz-section dark-theme">
-          <header>
-            <h2>Quiz: [Quiz Title]</h2>
-            <div>Timer: {timer} seconds</div>
-          </header>
-          <div className="question-container">
-            <div className="question">
-              {/* Render current question */}
-            </div>
-            <div className="options">
-              {/* Render options for the question */}
-            </div>
-          </div>
-          <div className="quiz-controls">
-            <button onClick={() => setCurrentQuestion(currentQuestion - 1)}>Previous</button>
-            <button onClick={() => setCurrentQuestion(currentQuestion + 1)}>Next</button>
-            <button >Submit Quiz</button>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
+const QuizContainer = () => {
+  const router = useRouter();
+  const { quiz } = mockQuiz;
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const { userAnswers, setUserAnswers, timeTaken, setTimeTaken } = useQuizStore();
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const startTime = Date.now();
+  const handleAnswerSelect = (questionId, answer) => {
+    setUserAnswers(questionId, answer);
   };
-  
-  export default QuizSection;
-  
+
+  const handleSubmit = () => {
+    setIsSubmitted(true);
+    const endTime = Date.now();
+    setTimeTaken(Math.floor((endTime - startTime) / 1000)); // Save total time in seconds
+  };
+
+  const handleTimeUp = () => {
+    alert('Time is up! Submitting your quiz.');
+    handleSubmit();
+  };
+
+  const calculateScore = () => {
+    const totalQuestions = quiz.questions.length;
+    let correctAnswers = 0;
+
+    quiz.questions.forEach((q) => {
+      if (userAnswers[q.id] === q.correct_answer) correctAnswers++;
+    });
+
+    const scorePercentage = ((correctAnswers / totalQuestions) * 100).toFixed(2);
+    const avgTimePerQuestion = (timeTaken / totalQuestions).toFixed(2);
+
+    return {
+      score: correctAnswers,
+      scorePercentage,
+      timeTaken: `${Math.floor(timeTaken / 60)}m ${timeTaken % 60}s`,
+      avgTimePerQuestion,
+    };
+  };
+
+  // Quiz Summary Page
+  if (isSubmitted) {
+    const scoreData = calculateScore();
+    return (
+      <div className="quiz-score dark-theme">
+        <h1>Quiz Summary</h1>
+        <p>Score: {scoreData.scorePercentage}%</p>
+        <p>Time Taken: {scoreData.timeTaken}</p>
+        <p>Average Time per Question: {scoreData.avgTimePerQuestion} seconds</p>
+        <div className="question-review">
+          {quiz.questions.map((q, index) => (
+            <div key={q.id} className="review-item">
+              <h4>Question {index + 1}:</h4>
+              <p>Your Answer: {userAnswers[q.id] || 'No answer'}</p>
+              <p>Correct Answer: {q.correct_answer}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <DashboardLayout>
+    <div className="quiz-container">
+      {/* New Progress Indicator */}
+      <div className="progress-indicator">
+        Question {currentIndex + 1} / {quiz.total_questions}
+      </div>
+      <QuizTimer duration={quiz.duration} onTimeUp={handleTimeUp} />
+      <QuestionCard
+        question={quiz.questions[currentIndex]}
+        onAnswerSelect={handleAnswerSelect}
+        selectedAnswer={userAnswers[quiz.questions[currentIndex].id] || ''}
+      />
+      <div className="quiz-navigation">
+        {/* Disable 'Prev' on the first question */}
+        <button
+          disabled={currentIndex === 0}
+          onClick={() => setCurrentIndex((prev) => prev - 1)}
+        >
+          Prev
+        </button>
+
+        {/* Show 'Next' until the last question, then show 'Submit' */}
+        {/*currentIndex < quiz.total_questions - 1 ? (*/}
+          <button
+            disabled={currentIndex === quiz.total_questions - 1}
+            onClick={() => setCurrentIndex((prev) => prev + 1)}
+          >
+            Next
+          </button>
+       
+          <button className="submit-btn" onClick={handleSubmit}>
+            Submit
+          </button>
+        
+      </div>
+    </div>
+    </DashboardLayout>
+  );
+};
+
+export default QuizContainer;

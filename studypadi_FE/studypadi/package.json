@@ -18,6 +18,7 @@
     "react": "19.0.0-rc-69d4b800-20241021",
     "react-calendar": "^5.1.0",
     "react-dom": "19.0.0-rc-69d4b800-20241021",
+    "react-responsive-carousel": "^3.2.23",
     "zustand": "^5.0.0"
   },
   "devDependencies": {

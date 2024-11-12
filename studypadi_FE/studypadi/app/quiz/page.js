@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../dashboard/dashboardLayout';
 import './quiz.css';
-import { mockData, mockClass} from '../mockData';
+import { mockData, mockClass, mockQuiz } from '../mockData';
 import { useRouter } from 'next/navigation';
 
 const QuizConfig = () => {

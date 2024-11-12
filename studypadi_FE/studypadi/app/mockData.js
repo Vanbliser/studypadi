@@ -1,3 +1,84 @@
+export const mockQuiz = {
+  'quiz': {
+    // Quiz details for the 'Skeletal System'
+    'quiz_name': 'Introduction to the Skeletal System',
+    'quiz_type': 'pastQ', // Can be 'special' or 'pastQ'
+    'duration': 2, // in minutes
+    'total_questions': 5,
+    'questions': [
+        {
+            'id': 1,
+            'content': 'What is the longest bone in the human body?',
+            'options': {
+                'A': 'Femur',
+                'B': 'Humerus',
+                'C': 'Tibia',
+                'D': 'Fibula'
+            },
+            'correct_answer': 'A',
+            'difficulty_level': 'medium',
+            'question_type': 'mcq'
+        },
+        {
+            'id': 2,
+            'content': 'Which of the following is not a part of the axial skeleton?',
+            'options': {
+                'A': 'Skull',
+                'B': 'Vertebral column',
+                'C': 'Ribs',
+                'D': 'Femur'
+            },
+            'correct_answer': 'D',
+            'difficulty_level': 'easy',
+            'question_type': 'mcq'
+        },
+        {
+            'id': 3,
+            'content': 'How many ribs does a normal human have?',
+            'options': {
+                'A': '10',
+                'B': '12',
+                'C': '24',
+                'D': '32'
+            },
+            'correct_answer': 'C',
+            'difficulty_level': 'medium',
+            'question_type': 'mcq'
+        },
+        {
+            'id': 4,
+            'content': 'Which bone protects the brain?',
+            'options': {
+                'A': 'Scapula',
+                'B': 'Cranium',
+                'C': 'Mandible',
+                'D': 'Sternum'
+            },
+            'correct_answer': 'B',
+            'difficulty_level': 'easy',
+            'question_type': 'mcq'
+        },
+        {
+            'id': 5,
+            'content': 'The kneecap is also known as:',
+            'options': {
+                'A': 'Patella',
+                'B': 'Femur',
+                'C': 'Tibia',
+                'D': 'Radius'
+            },
+            'correct_answer': 'A',
+            'difficulty_level': 'easy',
+            'question_type': 'mcq'
+        }
+    ],
+    'instant_correction': true, // Whether to show correct answers immediately after each question
+    'created_by': 'Educator123', // Sample educator/user who created the quiz
+    'created_at': '2024-10-28T10:00:00Z'
+}
+};
+
+
 export const mockData = {
     'modules': [
         'Medicine & Health Sciences',
