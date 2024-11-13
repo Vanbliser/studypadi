@@ -9,6 +9,7 @@ from django.db import migrations, models
 
 def create_initial_data(apps, schema_editor):
     module = apps.get_model("main", "Module")
+    module = apps.get_model("main", "Quiz")
 
     #modules
     m_h = f"""Study of human health, disease prevention, and medical treatment, encompassing clinical practice, \

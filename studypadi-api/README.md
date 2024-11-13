@@ -1,10 +1,17 @@
 # API Documentation
 
+## Test
+
+### Endpoints
+- /test GET
+
+### Description
+- Test: a get request to test if the application is live
+
 ## Account Authentication
 Implemented 2FA for user creation. an email is sent to the registered email address. Upon login, a JWT access and refresh token is returned. This token should to used to access restricted endpoints
 
 ### Endpoints
-- /test GET
 - /api/v1/auth/signup/ POST
 - /api/v1/auth/verify-otp/ POST
 - /api/v1/auth/resend-otp/ POST
@@ -16,8 +23,6 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 - /api/vi/auth/test-auth GET
 
 ### Description
-- Test: a get request to test if the application is live
-
 - Signup: receives the following required fields and returns a user object and a message indicating that an otp has been sent:
   * email
   * first_name
@@ -178,3 +183,72 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
     "msg":"working"
   }
   ```
+
+## main
+
+### Endpoints
+- api/v1/modules/?size=<> page=<>
+- api/v1/submodule/?module=<> | size=<> page=<>
+- api/v1/section/?submodule=<> | size=<> page=<>
+- api/v1/topic/?section=<> | size=<> page=<>
+- api/v1/user/
+- api/v1/user/quiz/?quizid=<> | size=<> page=<>
+- api/v1/user/quiz/prefilled?quizid=<> | size=<> page=<>
+- api/v1/user/quiz/realtime?quizid=<> | size=<> page=<>
+- api/v1/user/quiz/revision-test?quizid=<> | size=<> page=<>
+- api/v1/quiz/?module=<> | submodule=<> | section=<> | topic=<>  | educator_id=<>  | educator_name=<> | quizid=<> | quiz_name=<> | size=<> page=<>
+- api/v1/quiz/generate/ POST
+- api/v1/quiz/save/ POST
+- api/v1/quiz/submit/ POST
+- api/v1/quiz/create/ POST
+- api/v1/question/create POST
+- api/v1/submit-material POST
+
+### Description
+- Modules: endpoint to get all modules
+  ##### E.g
+  ###### input
+  modules/?size=5&page=2
+  ###### Output
+  ```
+  {
+    "size": 5,
+    "page": 2,
+    "total_pages": 2,
+    "total_items": 8,
+    "results": [
+        {
+            "id": 1,
+            "title": "Medicine & Health Sciences",
+            "description": "Study of human health, disease prevention, and medical treatment, encompassing clinical practice, public health, anatomy, physiology, pharmacology, and healthcare systems. Includes specialties like nursing, dentistry, and veterinary science."
+        },
+        {
+            "id": 2,
+            "title": "Science & Technology",
+            "description": "Exploration of natural and physical sciences including biology, chemistry, physics, and their technological applications. Covers scientific research methods, laboratory techniques, and emerging technologies in fields like biotechnology and materials science."
+        },
+    ]
+  }
+  ```
+
+- Submodules
+- Sections:
+- Topics:
+- User
+- User/revision-test
+- User/prefilled-quiz
+- User/realtime-quiz
+- Quiz
+- Quiz/generate
+  * module
+  * submodule
+  * section
+  * topic
+  * question_type
+  * difficulty [EAS | MED | HRD | EAH | EAM | EMH]
+  * algorithm [RAD | NEA | MOT]
+- Quiz/save
+- Quiz/submit
+- Quiz/create
+- Question/create
+- Submit-material

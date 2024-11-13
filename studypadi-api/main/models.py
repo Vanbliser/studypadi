@@ -38,7 +38,7 @@ class Question(models.Model):
         ("MED", "Medium"),
         ("HRD", "Hard")
     ]
-    quiz_types = [
+    question_types = [
         ('AIG', 'AI Generated quiz'),
         ('EDQ', 'Educator quiz'),
         ('PAQ', 'Past question quiz'),
@@ -51,10 +51,9 @@ class Question(models.Model):
     section_id = models.ForeignKey(Section, on_delete=models.SET_NULL, null=True)
     topic_id = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=get_super_user)
-    question_type = models.CharField(max_length=3, choices=quiz_types)
+    question_type = models.CharField(max_length=3, choices=question_types)
     created_at = models.DateTimeField(auto_now_add=True)
     difficulty = models.CharField(max_length=3, default="EAS", choices=difficulties)
-    question_type = models.CharField(max_length=3)
     question = models.TextField()
 
 class Option(models.Model):
@@ -63,7 +62,6 @@ class Option(models.Model):
     option = models.TextField()
 
 class Quiz(models.Model):
-    
     name = models.CharField(max_length=255)
     module_id = models.ForeignKey(Module, on_delete=models.SET_NULL, null=True)
     submodule_id = models.ForeignKey(Submodule, on_delete=models.SET_NULL, null=True)
@@ -73,7 +71,7 @@ class Quiz(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=get_super_user)
     questions = models.ManyToManyField(Question)
-                              
+                                                 
 class Quiz_attempt(models.Model):
     statuses = [
         ('FIN', 'Completed'),
