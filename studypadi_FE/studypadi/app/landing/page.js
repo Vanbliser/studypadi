@@ -22,7 +22,7 @@ export default function HomePage() {
   
         <div className="hero">
         <h1>Unlock Your Potential <br></br>with AI-Powered Learning</h1>
-        <p>Boost your study efficiency and examination success with StudyPadi,<br></br> your self-learning, user-centered quiz companion.</p>
+        <p>Boost your study efficiency and examination success with <span className="studp">StudyPadi</span>,<br></br> your self-learning, user-centered quiz companion.</p>
         <div className="nav-links">
           <Link href="auth/register">
             <button className="cta-btn b1">Register</button>
@@ -30,7 +30,7 @@ export default function HomePage() {
           <Link href="auth/login">
             <button className="cta-btn b2">Login</button>
           </Link>
-          <Link href="#">
+          <Link href="#about">
             <button className="cta-btn b3">Contact Us</button>
           </Link>
         </div>
@@ -85,36 +85,61 @@ export default function HomePage() {
       </section>
 
       {/* About Developers Section */}
-      <section className="developers">
-        <h2 className="dev-text">Meet the Developers</h2>
-        <div className="dev-container">
-        <div className="developer-profile">
-        <h1 className="dev-text">Backend Developer</h1>
-          <div className="developer-image">
-            {/* Placeholder for BE Developer Image */}
-            {/* Suggested Image: Professional photo of Backend Developer */}
-            <Image className='dp' src="/profilePics2.jpg" alt="Backend Developer" width={200} height={200} />
-          </div>
-          <div className="developer-details">
-            <h3 className="dev-text">BLOSSOM AYOGU </h3>
-            <p className="dev-text">BLOSSOM blossomisraelayogu@gmail.com blossom is a seasoned backend developer with expertise in Node.js and database management, ensuring StudyPadi's robust data handling.</p>
-          </div>
+      <div id="about">
+<section className="developers">
+  <h2 className="dev-text">Meet the Developers</h2>
+  <div className="dev-container">
+    {/* Backend Developer Profile */}
+    <div className="developer-profile">
+      <h1 className="dev-text">Backend Developer</h1>
+      <div className="developer-image">
+        <Image
+          className="dp"
+          src="/profilePics2.jpg"
+          alt="Backend Developer"
+          width={200}
+          height={200}
+        />
+      </div>
+      <div className="developer-details">
+        <h3 className="dev-text">Blossom Ayogu</h3>
+        <p className="dev-text">
+          Blossom is a seasoned backend developer with expertise in Node.js and
+          database management, ensuring StudyPadi's robust data handling.
+        </p>
+        <div className="social-links">
+          {/* Add social icons here */}
         </div>
-        <div className="developer-profile">
-        <h1 className="dev-text">Frontend Developer</h1>
-          <div className="developer-image">
-            {/* Placeholder for FE Developer Image */}
-            {/* Suggested Image: Professional photo of Frontend Developer */}
-            <Image className='dp' src="/profilePics3.jpeg" alt="Frontend Developer" width={200} height={180} />
-          </div>
-          <div className="developer-details">
-            <h3 className="dev-text"> Emmanuel Nwafor</h3>
-            <p className="dev-text">Emmanuel is a skilled frontend developer passionate about creating seamless, user-friendly interfaces to enhance the StudyPadi experience.</p>
-            {/* links with icon to socials */}
-          </div>
+      </div>
+    </div>
+
+    {/* Frontend Developer Profile */}
+    <div className="developer-profile">
+      <h1 className="dev-text">Frontend Developer</h1>
+      <div className="developer-image">
+        <Image
+          className="dp"
+          src="/profilePics3.jpeg"
+          alt="Frontend Developer"
+          width={200}
+          height={200}
+        />
+      </div>
+      <div className="developer-details">
+        <h3 className="dev-text">Emmanuel Nwafor</h3>
+        <p className="dev-text">
+          Emmanuel is a skilled frontend developer passionate about creating
+          seamless, user-friendly interfaces to enhance the StudyPadi experience.
+        </p>
+        <div className="social-links">
+          {/* Add social icons here */}
         </div>
-        </div>
-      </section>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
 
       {/* Footer Section */}
       <footer className="footer">
