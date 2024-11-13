@@ -15,7 +15,7 @@ const Authorization = ({children}) => {
         console.log("Access token from Zustand:", accessToken);
 
         if (!accessToken && privatePath.includes(path)) {
-            //router.push('/auth/login')
+            router.push('/auth/login')
             console.log("Data didnt persist in store");
         }
     }, [accessToken, router])
