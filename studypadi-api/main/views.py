@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from account.models import User
 from .models import Module, Submodule, Section, Topic, Question, Option, Quiz, Quiz_attempt, Response as ResponseModel
-from .serializers import UserSerializer, CreateQuestionSerializer, GenerateQuizSerializer, SaveQuizSerializer, SubmitQuizSerializer, CreateQuizSerializer, SubmitMaterialSerializer
+from .serializers import CreateQuestionsSerializer, GenerateQuizSerializer, SaveQuizSerializer, SubmitQuizSerializer, CreateQuizSerializer, SubmitMaterialSerializer
 
 # Create your views here.
 
@@ -132,7 +132,7 @@ class UserView(GenericAPIView):
     def get(self, request):
         email = request.user
         try:
-            user = user = User.objects.get(email=email)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             return Response({'message': "User not found! Please register again"}, status=status.HTTP_404_NOT_FOUND)
         data = {
@@ -506,13 +506,37 @@ class SubmitQuizView(GenericAPIView):
     pass
 
 class CreateQuizView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        pass
+    pass
 
 class CreateQuestionView(GenericAPIView):
-    pass
+    permission_classes = [IsAuthenticated]
+    serializer_class = CreateQuestionsSerializer
+
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer_class(data=data, context={'request': request})
+        print(data)
+        print('posts')
+        if serializer.is_valid(raise_exception=True):
+            print('post2')
+            email = request.user
+            try:
+                user =  User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response({'message': 'User not found. Please register'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                if user.user_role not in ['EDU', 'SUP', 'AIG']:
+                    return Response({'message': 'Unauthorised request'}, status=status.HTTP_401_UNAUTHORIZED)
+            questions = []
+            for question_data in serializer.validated_data:
+                question = Question.objects.create(created_by=user, question_type="PAQ", **question_data)
+                questions.append(question)
+            
+
+            response = CreateQuestionsSerializer(questions, many=True)
+            return Response(response.data, status=status.HTTP_201_CREATED)
+        print('serierror')
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SubmitMaterialView(GenericAPIView):
     pass
