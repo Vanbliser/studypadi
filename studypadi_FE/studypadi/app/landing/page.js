@@ -62,7 +62,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="features">
+      <section className="featuresGen">
         <h2>Why StudyPadi?</h2>
         <div className="feature-children">
         <div className="feature-item c1">
@@ -83,6 +83,83 @@ export default function HomePage() {
         </div>
         </div>
       </section>
+{/* feautures section to enter here below*/}
+      {/* Advanced Features Section */}
+<section className="features">
+  <h2 className="section-title">Discover the Power of StudyPadi</h2>
+  <p className="section-subtitle">
+    Transform your study sessions with a suite of innovative tools designed to enhance your learning experience.
+  </p>
+
+  <div className="feature-grid">
+    {/* Feature 1: Robust Question Bank */}
+    <div className="feature-card">
+      <h3>📚 Extensive Question Bank</h3>
+      <p>
+        Access a vast, ever-growing <strong>Question Bank</strong> filled with carefully curated questions
+        across multiple subjects and domains. Whether you're prepping for exams or brushing up on knowledge,
+        StudyPadi has the resources you need to excel.
+      </p>
+    </div>
+
+    {/* Feature 2: Traditional Quiz Functionality */}
+    <div className="feature-card">
+      <h3>📝 Classic Quiz Taking</h3>
+      <p>
+        Engage with familiar quiz formats like <strong>Multiple Choice</strong>, <strong>True/False</strong>,
+        and more. Tailor your quizzes by setting timers and get instant feedback to sharpen your skills and
+        boost your exam readiness.
+      </p>
+    </div>
+
+    {/* Feature 3: Structured Educational Modules */}
+    <div className="feature-card">
+      <h3>🔍 Organized Learning Resources</h3>
+      <p>
+        Navigate through our well-structured modules, broken down into <strong>submodules</strong>, sections,
+        and topics. StudyPadi simplifies complex subjects, making it easy to focus and master one topic at a time.
+      </p>
+    </div>
+
+    {/* Feature 4: Dynamic Quiz Generation */}
+    <div className="feature-card">
+      <h3>⚙️ Advanced Quiz Algorithms</h3>
+      <p>
+        Experience personalized learning with our <strong>AI-powered quiz algorithms</strong>. Choose from
+        <strong>Random, Adaptive, or Targeted</strong> quiz modes to match your study needs. Boost your learning
+        curve with quizzes tailored to your weaknesses.
+      </p>
+    </div>
+
+    {/* Feature 5: AI-Assisted Study Material Generator */}
+    <div className="feature-card">
+      <h3>🤖 AI-Assisted Test Generator</h3>
+      <p>
+        Leverage our <strong>AI-powered study tool</strong> to convert your notes and study materials into
+        custom quizzes. Upload your documents and get instant, personalized practice questions to reinforce learning.
+      </p>
+    </div>
+
+    {/* Feature 6: Comprehensive User Dashboard */}
+    <div className="feature-card">
+      <h3>📊 Smart Progress Tracking Dashboard</h3>
+      <p>
+        Track your study journey with our intuitive <strong>User Dashboard</strong>. Review past quizzes, monitor
+        progress, set goals, and identify areas of improvement, all in one place.
+      </p>
+    </div>
+  </div>
+  
+  {/* Call to Action */}
+  <div className="cta-section">
+    <p>Ready to elevate your study game?</p>
+    <Link href="auth/register">
+      <button className="cta-btn b1">Get Started for Free</button>
+    </Link>
+  </div>
+</section>
+
+
 
       {/* About Developers Section */}
       <div id="about">

@@ -12,6 +12,76 @@
     background-color: #ff0000;
     
 }
+
+
+/* Headings */
+  h1, h2, h3 {
+    font-family: 'Poppins', sans-serif; /* Modern, clean font */
+    margin-bottom: 0.5rem;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+  
+  /* Paragraph text */
+  p {
+    font-size: 1rem;
+    color: #cccccc; /* Softer text color for paragraphs */
+  }
+
+  /* Call to Action Section */
+.cta-section {
+  margin-top: 50px;
+  text-align: center;
+}
+
+.cta-section p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #1B212C;
+}
+
+.cta-btn {
+  background-color: #0E53AC;
+  color: #ffffff;
+  padding: 12px 28px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cta-btn:hover {
+  background-color: #082f6d;
+}
+
+/* Typography Enhancements */
+
+/* Link Styling */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  color: #0E53AC;
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
 .header {
     
     /*padding: 4rem 2rem;*/
@@ -99,20 +169,29 @@
     margin: 2rem 0;
     color: #ffffff;
 }
-.features {
+.featuresGen {
    margin: 0 150px;
     padding: 2rem;
 }
 .feature-item {
-    margin: 2rem 0;
+   padding: 5px;
     width: 40%;
 }
-.features h2 {
+.featuresGen h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
     text-align: center;
+    margin-bottom: 30px;
+
 }
 .feature-item h3 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
+}
+.feature-item p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #e0e0e0;
 }
 .feature-children {
     display: flex;
@@ -120,10 +199,13 @@
     
   
 }
-
+.c1, .c2 {
+    border: solid 1px #593434;
+}
 .c2 {
     color: #ffffff;
     align-self: flex-end; /* Add this line */
+
 }
 
 .dev-container {
@@ -223,30 +305,7 @@
     color: #e0e0e0; /* Slightly lighter text for better readability */
   }
   
-  /* Headings */
-  h1, h2, h3 {
-    font-family: 'Poppins', sans-serif; /* Modern, clean font */
-    margin-bottom: 0.5rem;
-  }
-  
-  h1 {
-    font-size: 1.8rem;
-  }
-  
-  h2 {
-    font-size: 2rem;
-  }
-  
-  h3 {
-    font-size: 1.5rem;
-    font-weight: 500;
-  }
-  
-  /* Paragraph text */
-  p {
-    font-size: 1rem;
-    color: #cccccc; /* Softer text color for paragraphs */
-  }
+ 
   
   /* Responsive design for smaller screens */
   @media (max-width: 768px) {
@@ -257,6 +316,83 @@
   
     .developer-profile {
       max-width: 90%;
+    }
+  }
+
+
+
+
+
+
+  
+  
+  /* Features Section Styles */
+.features {
+    padding: 60px 40px;
+    background-color: #ebd4d4;
+    text-align: center;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1B212C; /* Darker shade for emphasis */
+    margin-bottom: 20px;
+  }
+  
+  .section-subtitle {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto 50px;
+  }
+  
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-top: 40px;
+  }
+  
+  .feature-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left;
+    position: relative;
+  }
+  
+  .feature-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0E53AC;
+    margin-bottom: 15px;
+  }
+  
+  .feature-card p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #444;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  /* Responsive Design for Tablets and Mobile */
+  @media (max-width: 1024px) {
+    .feature-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .feature-grid {
+      grid-template-columns: 1fr;
     }
   }
   
