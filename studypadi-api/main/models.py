@@ -3,7 +3,7 @@ from account.models import User
 
 
 def get_super_user():
-    return User.objects.filter(is_superuser=True, role="SUP").first()
+    return User.objects.filter(is_superuser=True, user_role="SUP").values_list('id', flat=True).first()
 
 # Create your models here.
 
@@ -39,12 +39,9 @@ class Question(models.Model):
         ("HRD", "Hard")
     ]
     question_types = [
-        ('AIG', 'AI Generated quiz'),
-        ('EDQ', 'Educator quiz'),
-        ('PAQ', 'Past question quiz'),
-        ('AIE', 'AI Generated and Educator quiz'),
-        ('AIP', 'AI Generated and Past question quiz'),
-        ('ALL', 'All type')
+        ('AIG', 'AI Generated'),
+        ('EDQ', 'Educator'),
+        ('PAQ', 'Past question')
     ]
     module_id = models.ForeignKey(Module, on_delete=models.SET_NULL, null=True)
     submodule_id = models.ForeignKey(Submodule, on_delete=models.SET_NULL, null=True)

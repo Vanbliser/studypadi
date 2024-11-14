@@ -39,7 +39,6 @@ class RegisterUserView(GenericAPIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class VerifyOTPView(GenericAPIView):
 
     serializer_class = VerifyOTPSerializer
@@ -68,7 +67,6 @@ class VerifyOTPView(GenericAPIView):
                 return Response({'message': 'Unknown error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class ResendOTPView(GenericAPIView):
     serializer_class = ResendOTPSerializer
 
@@ -93,7 +91,6 @@ class ResendOTPView(GenericAPIView):
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
@@ -102,7 +99,6 @@ class LoginView(GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class TestAuthView(GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -116,7 +112,6 @@ class TestAuthView(GenericAPIView):
             'last_name': user.last_name,
         }
         return Response(data=data, status=status.HTTP_200_OK)
-
 
 class ForgetPasswordView(GenericAPIView):
     serializer_class = ForgetPasswordSerializer
@@ -139,7 +134,6 @@ class ForgetPasswordView(GenericAPIView):
             return Response({'message': 'A link has been sent to your email to reset your password'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class SetNewPassword(GenericAPIView):
     serializer_class = SetNewPasswordSerializer
 
@@ -149,7 +143,6 @@ class SetNewPassword(GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             return Response({'message': 'Password changed succesfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
-
 
 class LogoutView(GenericAPIView):
     serializer_class = LogoutSerializer
@@ -161,5 +154,3 @@ class LogoutView(GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
