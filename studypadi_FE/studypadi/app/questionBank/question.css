@@ -1,0 +1,97 @@
+/* General table styling */
+.questionsForUpload {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 16px;
+    background-color: #141212;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  /* Table headers */
+  .questionsForUpload th {
+    background-color: #464a50c9;
+    color: #fff;
+    padding: 10px 8px;
+    text-align: left;
+    font-weight: bold;
+  }
+  
+  /* Table rows */
+  .questionsForUpload td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #a4a6ac83;
+  }
+  
+  /* Zebra striping for rows */
+  .questionsForUpload tbody tr:nth-child(even) {
+    background-color: #12121457;
+  }
+  
+  /* Hover effect */
+  .questionsForUpload tbody tr:hover {
+    background-color: #4c4c4e;
+  }
+  
+  /* Editable cells */
+  .questionsForUpload td[contenteditable="true"] {
+    background-color: #0d0d0e;
+    cursor: text;
+  }
+  
+  /* Save button styling */
+  .saveToDB {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #82C7A5;
+    border: none;
+    color: #180303;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  
+  .saveToDB:hover {
+    background-color: #6ab08d;
+  }
+  
+
+/* Selection Fields Styling */
+.selection-fields label{
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    color: #fff;
+}
+
+/* Success Modal */
+.success-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #1c1e22;
+    color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.success-modal button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background-color: #82C7A5;
+    border: none;
+    color: #180303;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.success-modal button:hover {
+    background-color: #6ab08d;
+}

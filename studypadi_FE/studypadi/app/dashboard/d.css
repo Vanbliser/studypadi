@@ -1,0 +1,70 @@
+.kdashboardLayout {
+    display: flex;
+    font-family: var(--font-trocchi);
+    background-color: rgba(56, 53, 53, 0.9);
+}
+.dashboard {
+    display: flex;
+    font-family: var(--font-trocchi);
+    background-color: rgba(56, 53, 53, 0.9);
+    /*height: 100vh;*/
+  
+  }
+  
+  /* Sidebar styles */
+  .sidebar {
+    flex: 1.5;
+    background-color: rgba(22, 21, 21, 0.9);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    transition: width 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .sidebar.open {
+    width: 220px;
+  }
+  
+  .sidebar.closed {
+    width: 60px;
+  }
+  
+  .sidebar-toggle {
+    background: none;
+    color: #fff;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .sidebar nav ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .sidebar nav ul li {
+    padding: 10px;
+    
+  }
+  
+  .sidebar nav ul li a {
+    color: #fff;
+    text-decoration: none;
+
+  }
+
+  .sidebar nav ul li .ssvg {
+    padding-right: 10px;
+  }
+
+  /* Main content styles */
+  .main-content {
+    flex: 7;
+    padding: 20px;
+    overflow: hidden;
+  }

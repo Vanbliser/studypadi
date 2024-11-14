@@ -1,0 +1,145 @@
+
+:root {
+    --font-trocchi: var(--font-trocchi);
+    --font-trochut-regular: var(--font-trochut-regular);
+    --font-trochut-bold: var(--font-trochut-bold);
+    --font-trochut-italic: var(--font-trochut-italic);
+  }
+  
+
+
+
+
+/* Main authContainer */
+.authContainer {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* Left Column */
+.left-column {
+    flex: 1;
+    background-color: #0E0E0E;
+    color: #F2F2F2;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo h1 {
+    font-family: trocchi, sans-serif;
+    font-size: 2.5em;
+    font-size: 46px;
+}
+
+.logo p {
+    font-size: 0.8em;
+    color: #B0B0B0;
+    margin-left: 40px;
+    
+}
+.logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-top: 2px solid #FF0000;
+    font-family: 'Arial', sans-serif;
+    padding-left: 20px;
+    padding-bottom: 0px;
+}
+/*
+  ========================================
+ right Column
+  ========================================
+*/
+.right-column {
+    flex: 1;
+    background-image: url('/bg.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+}
+
+.text-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    color: #F2F2F2;
+    padding: 20px;
+    width: 75%;
+    margin: 0 auto; /* Align horizontally at the middle */
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 30px;
+    
+}
+
+.text-overlay h2{
+    font-family: trochutBold;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.text-overlay p {
+    font-family: trochut, trocchi;
+    font-weight: 400;
+    margin-bottom: 10px;
+}
+/*
+  ========================================
+ Forms 
+  ========================================
+*/
+.form {
+    width: 100%;
+    max-width: 300px;
+}
+
+.form h2{
+    font-family: trochutBold;
+    font-weight: 700;
+
+}
+.form label, .form button {
+    font-family: trochut, trocchi;
+    font-weight: 400;
+}
+
+.form input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    background-color: #D3D3D3;
+    border: none;
+    border-radius: 5px;
+    color:#0E0E0E;
+}
+
+.form button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #303647;
+    color: #F2F2F2;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.forgotPassword {
+    font-size: 0.8em;
+    color: #B0B0B0;
+    margin-top: 20px;
+    float: right;
+}
+
+.signup {
+    font-size: 0.8em;
+    color: #B0B0B0;
+    margin-top: 20px;
+    float: left;
+}
