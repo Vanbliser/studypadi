@@ -5,6 +5,7 @@ import useAuthStore from '../store/authStore';
 import { useRouter } from 'next/navigation';
 import DashboardLayout from "../dashboard/dashboardLayout";
 import './question.css';
+import { mockData, mockClass, mockQuiz } from '../mockData';
 
 //const QuestionBank = () => (
 //    <DashboardLayout>
@@ -27,6 +28,25 @@ const FileUploadAndTable = () => {
     const [customSection, setCustomSection] = useState('');
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [newQuizDetails, setNewQuizDetails] = useState(null);
+    const [quizName, setQuizName] = useState('');
+
+
+
+// remove the use effect after testing
+    useEffect(() => {
+      // Fetch modules from mockData
+      fetchModules();
+    }, []);
+  
+    useEffect(() => {
+      // Fetch submodules when a module is selected
+      if (selectedModule) fetchSubmodules(selectedModule);
+    }, [selectedModule]);
+  
+    useEffect(() => {
+      // Fetch sections when a submodule is selected
+      if (selectedModule && selectedSubmodule) fetchSections(selectedModule, selectedSubmodule);
+    }, [selectedSubmodule]);
 
   
     const handleFileUpload = (event) => {
@@ -58,7 +78,7 @@ const FileUploadAndTable = () => {
         };
       });
     };
-  
+  /*
     // Mock fetching from the database for modules, submodules, sections
     useEffect(() => {
         async function fetchModules() {
@@ -98,16 +118,59 @@ const FileUploadAndTable = () => {
             setShowCustomSection(false);
         }
     };
+*/
+
+//taking data from an object/ shortcut
+const fetchModules = () => {
+  // Fetch modules from mockData
+  const data = mockClass.modules.map((modules) => ({
+    'id': modules.id,
+    'name': modules.name
+  }));
+  setModules(data);
+};
+
+const fetchSubmodules = (moduleName) => {
+  // Fetch submodules based on selected module from mockData
+  const sMdata = Object.values(mockClass.modules).find(
+    (module) => module.name === moduleName
+  ) || [];
+  const formattedData = sMdata.submodules.map((module, index) => ({
+    id: index + 1,
+    name: module.name,
+  }));
+  setSubmodules(formattedData);
+};
+
+const fetchSections = (moduleName, submoduleName) => {
+  // Fetch sections based on selected submodule from mockData
+  const sMdata = Object.values(mockClass.modules).find(
+    (module) => module.name === moduleName) || {};
+  const data = sMdata.submodules ? Object.values(sMdata.submodules).find(
+    (submodule) => submodule.name === submoduleName) : [];
+  //const data = sMdata.section[submoduleName] || [];
+  const formattedData = data.sections.map((section, index) => ({
+    id: index + 1,
+    name: section,
+  }));
+  setSections(formattedData);
+};
+
+
+
 
     const handleSave = async () => {
-        try {
+        try {/*
             await fetch('/api/save-questions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ questions: data, selectedModule, selectedSubmodule, selectedSection: showCustomSection ? customSection : selectedSection }),
             });
             setNewQuizDetails({ name: 'Sample Quiz', id: '12345' });
+            setShowSuccessModal(true);*/
+            setNewQuizDetails({ name: 'Sample Quiz', id: '12345' });
             setShowSuccessModal(true);
+            console.log(data)
         } catch (error) {
             console.error('Error saving questions:', error);
         }
@@ -121,44 +184,45 @@ const FileUploadAndTable = () => {
           
           {/* Module, Submodule, Section Dropdowns */}
           <div className="selection-fields">
-            <label>
-              Module:
-              <select value={selectedModule} onChange={handleModuleChange}>
-                <option value="">Select Module</option>
-                {modules.map((mod) => (
-                  <option key={mod.id} value={mod.id}>{mod.name}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Submodule:
-              <select value={selectedSubmodule} onChange={handleSubmoduleChange} disabled={!selectedModule}>
-                <option value="">Select Submodule</option>
-                {submodules.map((sub) => (
-                  <option key={sub.id} value={sub.id}>{sub.name}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Section:
-              <select value={selectedSection} onChange={handleSectionChange} disabled={!selectedSubmodule}>
-                <option value="">Select Section</option>
-                {sections.map((sec) => (
-                  <option key={sec.id} value={sec.id}>{sec.name}</option>
-                ))}
-                <option value="others">Others</option>
-              </select>
-              {showCustomSection && (
-                <input
-                  type="text"
-                  value={customSection}
-                  onChange={(e) => setCustomSection(e.target.value)}
-                  placeholder="Enter custom section name"
-                />
-              )}
-            </label>
+          <div>
+          <label>Module: </label>
+          <select value={selectedModule} onChange={e => setSelectedModule(e.target.value)}>
+            <option value="">Select Module</option>
+            {modules.map(module => (
+              <option key={module.id} value={module.name}>{module.name}</option>
+            ))}
+          </select>
           </div>
 
+
+
+          <div>
+            <label>Submodule: </label>
+            <select value={selectedSubmodule} onChange={e => setSelectedSubmodule(e.target.value)}>
+              <option value="">Select Submodule</option>
+              {submodules.map(submodule => (
+                <option key={submodule.id} value={submodule.name}>{submodule.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label>Section: </label>
+            <select value={selectedSection} onChange={e => setSelectedSection(e.target.value)}>
+              <option value="">Select Section</option>
+              {sections.map(section => (
+                <option key={section.id} value={section.name}>{section.name}</option>
+              ))}
+            </select>
+
+            </div>
+            <div>
+
+            <label>Quiz Name</label>
+              <input type="text" value={quizName} onChange={e => setQuizName(e.target.value)} />
+            </div>
+           
+            </div>  
+          
           {/* Questions Table */}
           <table className='questionsForUpload'>
             <thead>
@@ -204,3 +268,44 @@ const FileUploadAndTable = () => {
 };
 
 export default FileUploadAndTable;
+
+/*
+</div>
+            <label>
+              Module:
+              <select value={selectedModule} onChange={handleModuleChange}>
+                <option value="">Select Module</option>
+                {modules.map((mod) => (
+                  <option key={mod.id} value={mod.id}>{mod.name}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Submodule:
+              <select value={selectedSubmodule} onChange={handleSubmoduleChange} disabled={!selectedModule}>
+                <option value="">Select Submodule</option>
+                {submodules.map((sub) => (
+                  <option key={sub.id} value={sub.id}>{sub.name}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Section:
+              <select value={selectedSection} onChange={handleSectionChange} disabled={!selectedSubmodule}>
+                <option value="">Select Section</option>
+                {sections.map((sec) => (
+                  <option key={sec.id} value={sec.id}>{sec.name}</option>
+                ))}
+                <option value="others">Others</option>
+              </select>
+              {showCustomSection && (
+                <input
+                  type="text"
+                  value={customSection}
+                  onChange={(e) => setCustomSection(e.target.value)}
+                  placeholder="Enter custom section name"
+                />
+              )}
+            </label>
+          </div>
+*/

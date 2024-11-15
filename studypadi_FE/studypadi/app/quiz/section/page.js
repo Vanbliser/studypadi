@@ -15,7 +15,7 @@ const QuizContainer = () => {
   const router = useRouter();
   const { quiz } = mockQuiz;
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { userAnswers, setUserAnswers, timeTaken, setTimeTaken } = useQuizStore();
+  const { userAnswers, setUserAnswers, timeTaken, setTimeTaken, clearAnswers } = useQuizStore();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const startTime = Date.now();
   const handleAnswerSelect = (questionId, answer) => {
@@ -23,10 +23,14 @@ const QuizContainer = () => {
   };
 
   const handleSubmit = () => {
+    console.log(userAnswers)
     setIsSubmitted(true);
     const endTime = Date.now();
     setTimeTaken(Math.floor((endTime - startTime) / 1000)); // Save total time in seconds
+  
+    
   };
+  
 
   const handleTimeUp = () => {
     alert('Time is up! Submitting your quiz.');
@@ -43,6 +47,8 @@ const QuizContainer = () => {
 
     const scorePercentage = ((correctAnswers / totalQuestions) * 100).toFixed(2);
     const avgTimePerQuestion = (timeTaken / totalQuestions).toFixed(2);
+  
+  
 
     return {
       score: correctAnswers,
@@ -55,6 +61,16 @@ const QuizContainer = () => {
   // Quiz Summary Page
   if (isSubmitted) {
     const scoreData = calculateScore();
+
+    const handleClearSubmit = () => {
+      // Clear Zustand store and localStorage
+      clearAnswers();
+      localStorage.removeItem('userAnswers'); // Clear saved answers in localStorage
+  
+      router.push('/quiz')
+      
+    }
+
     return (
       <div className="quiz-score dark-theme">
         <h1>Quiz Summary</h1>
@@ -65,11 +81,12 @@ const QuizContainer = () => {
           {quiz.questions.map((q, index) => (
             <div key={q.id} className="review-item">
               <h4>Question {index + 1}:</h4>
-              <p>Your Answer: {userAnswers[q.id] || 'No answer'}</p>
-              <p>Correct Answer: {q.correct_answer}</p>
+              <p>Your Answer: {userAnswers[index + 1] || 'No answer'}</p>
+              <p>Correct Answer: {q.id}{q.correct_answer}</p>
             </div>
           ))}
         </div>
+        <button onClick={handleClearSubmit}>Ok</button>
       </div>
     );
   }
