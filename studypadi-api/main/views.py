@@ -678,6 +678,7 @@ class QuizQuestionsView(GenericAPIView):
                         }
                     )
                 data = {
+                    'id': quiz.id,
                     'name': quiz.name,
                     'module': getattr(quiz.module_id, 'title', None),
                     'submodule': getattr(quiz.submodule_id, 'title', None),
