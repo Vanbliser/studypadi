@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ModulesView, SubmodulesView, SectionView, TopicView, UserView, UserQuizView, UserPrefilledQuizView, UserRealtimeQuizView, UserRevisionTestQuizView, QuizView, QuizQuestionsView, GenerateQuizView, SaveQuizView, SubmitQuizView, CreateQuizView, CreateQuestionView, SubmitMaterialView
+from .views import ModulesView, SubmodulesView, SectionView, TopicView, UserView, QuestionView, UserQuizView, UserPrefilledQuizView, UserRealtimeQuizView, UserRevisionTestQuizView, QuizView, QuizQuestionsView, GenerateQuizView, SaveQuizView, SubmitQuizView, CreateQuizView, CreateQuestionView, SubmitMaterialView
 
 
 urlpatterns = [
@@ -18,6 +18,7 @@ urlpatterns = [
     path('quiz/save/', SaveQuizView.as_view(), name='save-quiz'),
     path('quiz/submit/', SubmitQuizView.as_view(), name='quiz'),
     path('quiz/create/', CreateQuizView.as_view(), name='create-quiz'),
+    path('question/', QuestionView.as_view(), name='question'),
     path('question/create/', CreateQuestionView.as_view(), name='create-question'),
     path('submit-material/', SubmitMaterialView.as_view(), name='submit-material'),
 ]
