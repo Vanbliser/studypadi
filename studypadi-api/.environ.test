@@ -1,0 +1,29 @@
+SECRET_KEY=django-insecure-s*7@5q6yzv0p%(*b%ii7ibt@+=a29lq_mb&@u*%*a)#vp+x$2&
+
+DEBUG=True
+
+ALLOWED_HOST1=127.0.0.1
+ALLOWED_HOST2=
+
+# DATABASE CONFIG
+DB_NAME=test
+DB_USER=root
+DB_PASSWORD=Mys&l_D3
+DB_HOST=127.0.0.1
+DB_PORT=3307
+
+
+
+EMAIL_USER=<user yours>
+EMAIL_APP_PASSWORD=<use yours>
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+
+# Redis endpoint
+REDIS=redis://127.0.0.1:6379
+
+# OTP SETTING
+MAX_ATTEMPT=3
+TIMEOUT=300
+DIGITS=6

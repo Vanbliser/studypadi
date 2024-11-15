@@ -26,7 +26,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             'confirm_password': {'required': True},
         }
 
-
     def validate(self, attrs):
         """check if password and confirm password matches
         """
@@ -41,7 +40,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if password != confirm_password:
             raise serializers.ValidationError("passwords do not match")
         return attrs
-
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -71,7 +69,6 @@ class VerifyOTPSerializer(serializers.Serializer):
         if extra_fields:
             raise serializers.ValidationError("Bad request. Unknown field(s).")
         return data
-    
 
 class ResendOTPSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
@@ -197,7 +194,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
         
         return user
 
-
 class LogoutSerializer(serializers.Serializer):
     refresh_token = serializers.CharField()
     
@@ -218,4 +214,3 @@ class LogoutSerializer(serializers.Serializer):
         except TokenError:
             raise serializers.ValidationError("Bad token.")
         return attrs
-    
