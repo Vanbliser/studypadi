@@ -1,3 +1,27 @@
+# Studypadi API Project Setup
+
+- clone the project
+- cd into studypadi-api
+- create a python virtual environment: python3 -m venv .env
+- activate virtual environment: source .env/bin/activate
+- install dependencies: pip3 install -r requirements.txt
+- download and setup redis. Make sure you have docker
+  $ mkdir redis-data
+  $ chmod 777 redis-data
+  $ docker volume create redis-volume
+  $ docker run --name redis -p 6379:6379 -v redis-volume:/data -v $(pwd)/redis.conf:/usr/local/etc/redis/redis.conf -d redis redis-server
+- setup mysql
+  $ docker volume create mysql-volume
+  $ docker run --name mysql-db -e MYSQL_ROOT_PASSWORD='Mys&l_D3' -p 3307:3306 -v mysql-volume:/var/lib/mysql -d mysql
+- Rename the .environ.test file to .environ, and update the EMAIL_USER and EMAIL_APP_PASSWORD variable to your gmail value. Research on how to get it. This will enable OTP to be sent when registering users.
+- start the application: You can use gunicorn web server or django builtin server:
+  $ gunicorn studypadi.wsgi:application --bind 0.0.0.0:8000
+  OR
+  $ python3 manage.py runserver
+- Run celery worker service. This handles email sending asynchronously
+  $ python -m celery -A studypadi worker -l info
+
+
 # API Documentation
 
 ## Test
