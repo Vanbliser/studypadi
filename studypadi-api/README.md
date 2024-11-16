@@ -14,11 +14,13 @@
   $ docker volume create redis-volume
   $ docker run --name redis -p 6379:6379 -v redis-volume:/data -v $(pwd)/redis.conf:/usr/local/etc/redis/redis.conf -d redis redis-server
   ```
+  Going forward, like when you restart your laptop, you just need to run `docker container start redis`
 - setup mysql
   ```
   $ docker volume create mysql-volume
   $ docker run --name mysql-db -e MYSQL_ROOT_PASSWORD='Mys&l_D3' -p 3307:3306 -v mysql-volume:/var/lib/mysql -d mysql
   ```
+  Going forward, like when you restart your laptop, you just need to run `docker container start mysql-db`
 - Rename the .environ.test file to .environ, and update the EMAIL_USER and EMAIL_APP_PASSWORD variable to your gmail value. Research on how to get it. This will enable OTP to be sent when registering users.
 - start the application: You can use gunicorn web server or django builtin server:
   `gunicorn studypadi.wsgi:application --bind 0.0.0.0:8000`
@@ -217,18 +219,20 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 ## main
 
 ### Endpoints
+
 #### GET and POST request
-- api/v1/modules/?size=<> page=<> GET/POST
-- api/v1/submodule/?module=<> | size=<> page=<> GET/POST
-- api/v1/section/?submodule=<> | size=<> page=<> GET/POST
-- api/v1/topic/?section=<> | size=<> page=<> GET/POST
+Note that following four endpoints is also used to update, if you provided the an already existing id value using a POST request. POST request takes a list of objects. GET request returns list of objects.
+- api/v1/modules/?id=<> | size=<> page=<> GET/POST
+- api/v1/submodule/?module_id=<> | size=<> page=<> GET/POST
+- api/v1/section/?submodule_id=<> | size=<> page=<> GET/POST
+- api/v1/topic/?section_id=<> | size=<> page=<> GET/POST
 #### GET requests
 - api/v1/user/ GET
 - api/v1/user/quiz/?quizid=<> | size=<> page=<> GET
 - api/v1/user/quiz/prefilled/?quizid=<> | size=<> page=<> GET
 - api/v1/user/quiz/realtime/?quizid=<> | size=<> page=<> GET
 - api/v1/user/quiz/revision-test/?quizid=<> | size=<> page=<> GET
-- api/v1/quiz/?module=<> | submodule=<> | section=<> | topic=<>  | educator_id=<>  | educator_name=<> | quizid=<> | quiz_name=<> | size=<> page=<> GET
+- api/v1/quiz/?moduleid=<> | submoduleid=<> | sectionid=<> | topicid=<>  | educatorid=<>  | educator_name=<> | quizid=<> | quizname=<> search=<> | size=<> page=<> GET
 - api/v1/quiz/question/quizid=<> GET
 #### POST requeests
 - api/v1/question/create POST
@@ -243,18 +247,25 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 - api/v1/submit-material POST
 
 ### Description
-- modules/ :endpoint to get all modules, or create modules using a list of module objects
-- submodules/  
-- sections/    
-- topics/  
-- user/  
-- user/quiz/ 
-- user/quiz/prefilled/    
-- user/quiz/realtime/ 
-- user/quiz/revision-test/
-- quiz/  
-- quiz/question/   
-- quiz/generate/ :generate quiz. takes in (module, submodule, section, topic, question_type, difficulty, algorithm), where:
+- modules/ :endpoint to get all modules, or create/update modules using a list of module objects with the following parameter:
+  - id (int, optional-include if you want to update an existing module)
+  - title (string)
+  - description (string)
+- submodules/  :same as above with an additional module_id required parameter. submodules must belong to a module.
+  - id (int, optional-include if you want to update an existing submodule)
+  - module_id (int)
+  - title (string)
+  - description (string)
+- sections/  :same as above with a required submodule_id parameter
+- topics/  :same as above with a required submodule_id parameter
+- user/  :returns an object representing the current authenticated user.
+- user/quiz/ :returns a list of all quizzes taken by the current user, or a single quiz if you provide a quizid value
+- user/quiz/prefilled/  :same as above just prefilled quiz 
+- user/quiz/realtime/  :same as above, just realtime quiz
+- user/quiz/revision-test/ :same as above, just revision-test quiz
+- quiz/  :returns a list of quizzes following the support query strings. precedence is as follows quizid > educatorid > topicid > sectionid > submoduleid > moduleid > quizname == educatorname == search
+- quiz/question/  :returns all questions associated with a quiz provided by the quizid parameter
+- quiz/generate/ :generate quiz by applying the following filter (module, submodule, section, topic, question_type, difficulty, algorithm), where:
   - QUESTION_TYPE
       - AIG: AI Generated quiz
       - EDQ: Educator quiz
