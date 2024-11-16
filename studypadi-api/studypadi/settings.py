@@ -185,3 +185,9 @@ DIGITS=env('DIGITS')
 # Celery Configuration
 CELERY_BROKER_URL = env('REDIS')
 CELERY_RESULT_BACKEND = env('REDIS')
+
+# Openai key
+OPENAI_KEY = env('OPENAI_KEY')
+
+# AiGen Password
+AIGEN = env('AIGEN')

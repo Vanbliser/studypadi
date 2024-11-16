@@ -27,3 +27,9 @@ REDIS=redis://127.0.0.1:6379
 MAX_ATTEMPT=3
 TIMEOUT=300
 DIGITS=6
+
+#OPENAI KEY
+OPENAI_KEY=<please provide your openai key>
+
+# AIGEN PASSWORD
+AIGEN=qynfjfi123#

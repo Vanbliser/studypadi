@@ -284,10 +284,10 @@ Note that following four endpoints is also used for UPDATE, if you provide an al
       - RAD - Random
       - MOF - Most failed
       - LEA - Least attempted
+- submit-material/ :receives a JSON with name, num_of_questions, and text fields. The name represent the name of the quiz that would be generated. num_of-questions represent the num of question you want generated, and text represent the study material text that questions would be generated out of.
 
 - quiz/save/ 
 - quiz/submit/ 
 - quiz/create/ 
 - question/  
 - question/create/ 
-- submit-material/ 
