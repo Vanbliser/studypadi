@@ -8,6 +8,7 @@ from account.models import User
 from django.db import transaction
 from .models import Module, Submodule, Section, Topic, Question, Option, Quiz, Quiz_attempt, Response as ResponseModel
 from .serializers import ModuleSerializer, SubmoduleSerializer, SectionSerializer, TopicSerializer, CreateQuestionListSerializer, GenerateQuizSerializer, SaveQuizSerializer, SubmitQuizSerializer, CreateQuizSerializer, SubmitMaterialSerializer
+import random
 
 # Create your views here.
 
@@ -754,13 +755,124 @@ class CreateQuestionView(GenericAPIView):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class GenerateQuizView(GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = GenerateQuizSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+
+            email = request.user
+            try:
+                user =  User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response({'message': 'User not found. Please register'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            validated_data = serializer.validated_data
+            name = validated_data.get("name")
+            module_id = validated_data.get("module_id")
+            submodule_id = validated_data.get("submodule_id")
+            section_id = validated_data.get("section_id")
+            topic_id = validated_data.get("topic_id")
+            question_type = validated_data.get("question_type")
+            difficulty = validated_data.get("difficulty")
+            algorithm = validated_data.get("algorithm")
+            num_of_questions = validated_data.get("num_of_questions")
+
+            # Build base filter
+            question_filter = Q()
+            if topic_id:
+                question_filter &= Q(topic_id=topic_id)
+            elif section_id:
+                question_filter &= Q(section_id=section_id)
+            elif submodule_id:
+                question_filter &= Q(submodule_id=submodule_id)
+            elif module_id:
+                question_filter &= Q(module_id=module_id)
+
+            # Handle difficulty filter
+            if difficulty == "EAS":
+                question_filter &= Q(difficulty="EAS")
+            elif difficulty == "MED":
+                question_filter &= Q(difficulty="MED")
+            elif difficulty == "HRD":
+                question_filter &= Q(difficulty="HRD")
+            elif difficulty == "EAM":
+                question_filter &= Q(difficulty__in=["EAS", "MED"])
+            elif difficulty == "EAH":
+                question_filter &= Q(difficulty__in=["EAS", "HRD"])
+            elif difficulty == "EMD":
+                question_filter &= Q(difficulty__in=["EAS", "MED", "HRD"])
+
+            # Handle question type filter
+            if question_type == "AIG":
+                question_filter &= Q(created_by__user_role="AIG")
+            elif question_type == "EDQ":
+                question_filter &= Q(created_by__user_role="EDU")
+            elif question_type == "PAQ":
+                question_filter &= Q(created_by__user_role="SUP")
+            elif question_type == "AIE":
+                question_filter &= Q(created_by__user_role__in=["AIG", "EDU"])
+            elif question_type == "AIP":
+                question_filter &= Q(created_by__user_role__in=["AIG", "SUP"])
+
+            # Fetch questions based on algorithm
+            if algorithm == "RAD":
+                questions = list(Question.objects.filter(question_filter))
+                random.shuffle(questions)
+                questions = questions[:num_of_questions]
+
+            elif algorithm == "MOF":
+                failed_questions = Response.objects.filter(
+                    quiz_attempt__taken_by=user,
+                    chosen_option__is_answer=False
+                ).values_list("question_id", flat=True)
+                questions = list(Question.objects.filter(id__in=failed_questions).filter(question_filter))
+                questions = questions[:num_of_questions]
+
+            elif algorithm == "LEA":
+                attempted_questions = Response.objects.filter(
+                    quiz_attempt__taken_by=user
+                ).values_list("question_id", flat=True)
+                questions = list(Question.objects.exclude(id__in=attempted_questions).filter(question_filter))
+                questions = questions[:num_of_questions]
+
+            # Handle case where no questions are generated
+            if not questions:
+                return Response({"detail": "No questions available for the provided criteria."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Create quiz and attach questions
+            num = len(questions)
+            args = {
+                'name': name,
+                'module_id': module_id,
+                'submodule_id': submodule_id,
+                'section_id': section_id,
+                'topic_id': topic_id,
+                'num_of_questions': num
+            }
+            cleaned_args = {key: value for key, value in args.items() if value is not None}
+            quiz = Quiz.objects.create(**cleaned_args)
+            quiz.questions.set(questions)
+
+            # Prepare response data
+            quiz_data = {
+                "id": quiz.id,
+                "name": quiz.name,
+                "num_of_questions": num
+            }
+            return Response(quiz_data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SubmitMaterialView(GenericAPIView):
+    pass
+
 class QuestionView(GenericAPIView):
     pass
 
 class UserQuizResponseView(GenericAPIView):
-    pass
-
-class GenerateQuizView(GenericAPIView):
     pass
 
 class SaveQuizView(GenericAPIView):
@@ -770,7 +882,4 @@ class SubmitQuizView(GenericAPIView):
     pass
 
 class CreateQuizView(GenericAPIView):
-    pass
-
-class SubmitMaterialView(GenericAPIView):
     pass

@@ -189,19 +189,50 @@ class CreateQuestionListSerializer(serializers.ListSerializer):
     child = CreateQuestionSerializer()
 
 class GenerateQuizSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    module_id = serializers.PrimaryKeyRelatedField(queryset=Module.objects.all(), required=False)
+    submodule_id = serializers.PrimaryKeyRelatedField(queryset=Submodule.objects.all(), required=False)
+    section_id = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all(), required=False)
+    topic_id = serializers.PrimaryKeyRelatedField(queryset=Topic.objects.all(), required=False)
+    num_of_questions = serializers.IntegerField()
+    question_type = serializers.ChoiceField(choices=[
+        ('AIG', 'AI Generated quiz'),
+        ('EDQ', 'Educator quiz'),
+        ('PAQ', 'Past question quiz'),
+        ('AIE', 'AI Generated and Educator quiz'),
+        ('AIP', 'AI Generated and Past question quiz'),
+        ('ALL', 'All type')
+    ])
+    difficulty = serializers.ChoiceField(choices=[
+        ('EAS', 'Easy'),
+        ('MED', 'Medium'),
+        ('HRD', 'Hard'),
+        ('EAM', 'Easy AND Medium'),
+        ('EAH', 'Easy AND Hard'),
+        ('EMD', 'Easy AND Medium AND Hard')
+    ])
+    algorithm = serializers.ChoiceField(choices=[
+        ('RAD', 'Random'),
+        ('MOF', 'Most failed'),
+        ('LEA', 'Least attempted')
+    ])
 
     class Meta:
-        fields = ['email', 'first_name', 'last_name', 'password', 'confirm_password']
+        fields = ['name', 'module_id', 'submodule_id', 'section_id', 'topic_id', 'num_of_questions', 'question_type', 'difficulty', 'algorithm']
         extra_kwargs = {
-            'email': {'required': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-            'password': {'required': True},
-            'confirm_password': {'required': True},
+            'name': {'required': True},
+            'num_of_question': {'required': True},
+            'question_type': {'required': True},
+            'difficulty': {'required': True},
+            'algorithm': {'required': True}
         }
     
     def validate(self, attrs):
-        pass
+        allowed_fields = set(self.fields.keys())
+        extra_fields = set(self.initial_data.keys()) - allowed_fields
+        if extra_fields:
+            raise serializers.ValidationError("Bad request. Unknown field(s).")
+        return attrs
 
 class SaveQuizSerializer(serializers.Serializer):
 

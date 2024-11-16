@@ -232,11 +232,11 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 - api/v1/quiz/question/quizid=<> GET
 #### POST requeests
 - api/v1/question/create POST
+- api/v1/quiz/generate/ POST
 
 **NOT IMPLEMENTED**
-- api/v1/user/quiz/response/?id
-- api/v1/question/?id=<>
-- api/v1/quiz/generate/ POST
+- api/v1/user/quiz/response/?quizid GET
+- api/v1/question/?id=<> GET
 - api/v1/quiz/save/ POST
 - api/v1/quiz/submit/ POST
 - api/v1/quiz/create/ POST
@@ -254,7 +254,26 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 - user/quiz/revision-test/
 - quiz/  
 - quiz/question/   
-- quiz/generate/   
+- quiz/generate/ :generate quiz. takes in (module, submodule, section, topic, question_type, difficulty, algorithm), where:
+  - QUESTION_TYPE
+      - AIG: AI Generated quiz
+      - EDQ: Educator quiz
+      - PAQ: Past question quiz
+      - AIE: AI Generated and Educator quiz
+      - AIP: AI Generated and Past question quiz
+      - ALL: All type
+  - DIFFICULTY
+      - EAS - Easy
+      - MED - Medium
+      - HRD - Hard
+      - EAM - Easy AND Medium
+      - EAH - Easy AND Hard
+      - EMD - Easy AND Medium AND Hard
+  - ALGORITHM
+      - RAD - Random
+      - MOF - Most failed
+      - LEA - Least attempted
+
 - quiz/save/ 
 - quiz/submit/ 
 - quiz/create/ 
