@@ -6,9 +6,12 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from account.models import User
 from django.db import transaction
-from .models import Module, Submodule, Section, Topic, Question, Option, Quiz, Quiz_attempt, Response as ResponseModel
+from .models import Module, Submodule, Section, Topic, Question, Option, Quiz, Quiz_attempt, get_ai_gen_user, Response as ResponseModel
 from .serializers import ModuleSerializer, SubmoduleSerializer, SectionSerializer, TopicSerializer, CreateQuestionListSerializer, GenerateQuizSerializer, SaveQuizSerializer, SubmitQuizSerializer, CreateQuizSerializer, SubmitMaterialSerializer
 import random
+from .ai import get_completion
+import json
+import re
 
 # Create your views here.
 
@@ -542,14 +545,14 @@ class QuizView(GenericAPIView):
             else:
                 return Response(
                     {
-                        'quiz_id': quiz.id,
-                        'module_title': quiz.module_id.title,
-                        'submodule_title': quiz.submodule_id.title,
-                        'section_title': quiz.section_id.title,
-                        'topic_title': quiz.topic_id.title,
-                        'num_of_questions': quiz.num_of_questions,
+                        'quizid': quiz.id,
+                        'name': quiz.name,
+                        'module': getattr(quiz.module_id, 'title', None),
+                        'submodule': getattr(quiz.submodule_id, 'title', None),
+                        'section': getattr(quiz.section_id, 'title', None),
+                        'topic': getattr(quiz.topic_id, 'title', None),
+                        'number_of_questions': quiz.num_of_questions,
                         'created_at': quiz.created_at,
-                        'created_by': f"{quiz.created_by.first_name} {quiz.created_by.last_name}"
                     },
                     status=status.HTTP_200_OK
                 )
@@ -867,7 +870,66 @@ class GenerateQuizView(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SubmitMaterialView(GenericAPIView):
-    pass
+    
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubmitMaterialSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            validated_data = serializer.validated_data
+            name = validated_data.get("name", "AI Gen")
+            text = validated_data.get("text")
+            num_of_questions = validated_data.get("num_of_questions")
+            response = get_completion(text=text, num_of_questions=num_of_questions)
+            response = re.search(r'\[.*?(?:\[.*?\].*?)*\]', response, re.DOTALL).group(0)
+            print(response)
+            # Parse the JSON response
+            try:
+                questions_data = json.loads(response)
+            except json.JSONDecodeError:
+                return Response({"error": f"""Failed to parse question from the LLM response."""}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            with transaction.atomic():
+                # Create a Quiz instance
+                quiz = Quiz.objects.create(
+                    name=name,
+                    num_of_questions=len(questions_data),
+                    created_by=get_ai_gen_user()
+                )
+
+                # Create Question and Option instances
+                for question_data in questions_data:
+                    question_text = question_data.get("question")
+                    options = question_data.get("options", [])
+                    difficulty = question_data.get("difficulty")
+                    if difficulty not in ["EAS", "MED", "HRD"]:
+                        difficulty = "EAS"
+
+                    # Create the Question instance
+                    question = Question.objects.create(
+                        question=question_text,
+                        created_by=get_ai_gen_user(),
+                        question_type="AIG",
+                        difficulty=difficulty
+                    )
+                    quiz.questions.add(question)
+
+                    # Create Option instances
+                    for option_data in options:
+                        Option.objects.create(
+                            question_id=question,
+                            option=option_data["text"],
+                            is_answer=option_data["is_answer"]
+                        )
+                data = {
+                    "id": quiz.id,
+                    "name": quiz.name,
+                    "num_of_questions": quiz.num_of_questions
+                }
+
+            return Response(data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class QuestionView(GenericAPIView):
     pass

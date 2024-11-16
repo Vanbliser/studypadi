@@ -1,9 +1,29 @@
 from django.db import models
 from account.models import User
+from django.contrib.auth.hashers import make_password
+from django.conf import settings
 
+
+ai_gen_password = getattr(settings, 'AIGEN')
 
 def get_super_user():
     return User.objects.filter(is_superuser=True, user_role="SUP").values_list('id', flat=True).first()
+
+def get_ai_gen_user():
+    user = User.objects.filter(user_role="AIG", is_verified=True, is_active=True).first()
+
+    if not user:
+        # Create a new user if none exist
+        user = User.objects.create(
+            email = 'aigen@email.com',
+            first_name = 'ai',
+            last_name = 'gen',
+            is_verified = True,
+            is_superuser = False,
+            user_role = 'AIG',
+            password = make_password(ai_gen_password)
+        )
+    return user
 
 # Create your models here.
 

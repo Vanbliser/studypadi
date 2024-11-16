@@ -234,6 +234,27 @@ class GenerateQuizSerializer(serializers.Serializer):
             raise serializers.ValidationError("Bad request. Unknown field(s).")
         return attrs
 
+class SubmitMaterialSerializer(serializers.Serializer):
+
+    text = serializers.CharField()
+    name = serializers.CharField()
+    num_of_questions = serializers.IntegerField()
+
+    class Meta:
+        fields = ['name', 'text', 'num_of_questions']
+        extra_kwargs = {
+            'name': {'required': True},
+            'text': {'required': True},
+            'num_of_questions': {'required': True}
+        }
+    
+    def validate(self, attrs):
+        allowed_fields = set(self.fields.keys())
+        extra_fields = set(self.initial_data.keys()) - allowed_fields
+        if extra_fields:
+            raise serializers.ValidationError("Bad request. Unknown field(s).")
+        return attrs
+
 class SaveQuizSerializer(serializers.Serializer):
 
     class Meta:
@@ -265,21 +286,6 @@ class SubmitQuizSerializer(serializers.Serializer):
         pass
 
 class CreateQuizSerializer(serializers.Serializer):
-
-    class Meta:
-        fields = ['email', 'first_name', 'last_name', 'password', 'confirm_password']
-        extra_kwargs = {
-            'email': {'required': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-            'password': {'required': True},
-            'confirm_password': {'required': True},
-        }
-    
-    def validate(self, attrs):
-        pass
-
-class SubmitMaterialSerializer(serializers.Serializer):
 
     class Meta:
         fields = ['email', 'first_name', 'last_name', 'password', 'confirm_password']
