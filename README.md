@@ -18,18 +18,19 @@ StudyPadi enhances comprehension through active learning and self-testing, turni
 ## Project Description
 
 ### Technlogies and packages used
-- MySQL database
-- Redis cache and message broker
-- Celery: Asynchronous task queue. Used to handle sending OTP to email using redis as the broker
-- pyotp: For generating Time based OTP
-- django rest framework
-- django rest framework simple jwt
-- gunicorn: Application server
-StudyPadi is more than just a quiz app; it's a complete learning ecosystem designed to help users prepare for exams and assessments by providing a customized and interactive study experience.
+
+### Backend
+- **MySQL database**
+- **Redis cache and message broker**
+- **Celery**: Asynchronous task queue. Used to handle sending OTP to email using redis as the broker
+- **pyotp**: For generating Time based OTP
+- **django rest framework**
+- **django rest framework simple jwt**
+- **gunicorn**: Application server
+- **Open-AI API**
+
 
 ---
-
-## 🚀 Technologies Used
 
 ### Frontend
 - **HTML5 & CSS3**: For creating the structure and styling of the web pages.
@@ -40,18 +41,6 @@ StudyPadi is more than just a quiz app; it's a complete learning ecosystem desig
 - **Figma**: For bringing Design ideas into life, and testing decisions before final implementation.
 - **Miro**: For Whiteboarding and collaborative sessions.
 
-### Backend
-- MySQL database
-- Redis cache and message broker
-- Celery: Asynchronous task queue. Used to handle sending OTP to email using redis as the broker
-- pyotp: For generating Time based OTP
-- django rest framework
-- django rest framework simple jwt
-- gunicorn: Application server
-- **Python & Flask**: Serve as the core backend framework, handling RESTful API creation.
-- **SQLAlchemy**: Manages database interactions using Python's ORM.
-- **SQLite**: Serves as the lightweight, file-based database for rapid development and testing.
-- **Redit**:
 
 ---
 
@@ -122,7 +111,7 @@ The API documentation is available in the [studypadi_api] https://github.com/Van
 - **User Authentication**: Register, login, and manage user sessions.
 - **Quiz Management**: CRUD operations for quizzes, including fetching, creating, and deleting quizzes.
 - **Study Material Upload**: Endpoints for analyzing and storing user-uploaded documents.
-- **Analytics**: Track user quiz history and generate performance reports.
+- **Dashboard**: Track user quiz history and generate performance reports.
 
 ---
 
