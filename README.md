@@ -133,61 +133,31 @@ The API documentation is available in the [studypadi_api] https://github.com/Van
    npm run dev
    
 ### Setting Up Backend
-- **Django** (v5.1.2 or above)
-- **redis** (v5.2.0 or above)
-- **Python 3.8+**
-- **Docker**
-other requirements are in the requirement.txt file.
-
-## 🛠️ Setting Up MySQL
-
-1. **Create a Docker Volume for MySQL**
-   ```bash
-   docker volume create mysql-volume
-2. Run MySQL Docker Container
-    ```bash
-docker run --name mysql-db \
-  -e MYSQL_ROOT_PASSWORD='Mys&l_D3' \
-  -p 3307:3306 \
-  -v mysql-volume:/var/lib/mysql \
-  -d mysql
-## 🛠️ Setting Up MySQL
-### Create a Docker Volume for Redis
-
-    ```bash
-    docker volume create redis-volume
-    cd studypadi-api
-    docker run --name redis \
-    -p 6379:6379 \
-    -v redis-volume:/data \
-    -v $(pwd)/redis.conf:/usr/local/etc/redis/redis.conf \
-    -d redis redis-server
-
-##  🛠️ Setting Up Django
-### Create a Virtual Environment
-
-bash
-Copy code
-cd studypadi-api
-python3 -m venv .env
-source .env/bin/activate
-Install Python Dependencies
-
-bash
-Copy code
-pip3 install -r requirements.txt
-Apply Database Migrations
-
-bash
-Copy code
-python manage.py migrate
-Run the Django Server using Gunicorn
-
-Open a new terminal and execute:
-bash
-Copy code
-gunicorn studypadi.wsgi:application --bind 127.0.0.1:8000
-🧪 Testing Your Setup
-To confirm everything is set up correctly, visit the following URL in your browser:
-
-URL: http://127.0.0.1:8000/api/v1/test
+- clone the project
+- cd into studypadi-api
+  `cd studypadi-api`
+- create a python virtual environment:
+  `python3 -m venv .env`
+- activate virtual environment: 
+  `source .env/bin/activate`
+- install dependencies: 
+  `pip3 install -r requirements.txt`
+- download and setup redis. Make sure you have docker
+  ```
+  $ docker volume create redis-volume
+  $ docker run --name redis -p 6379:6379 -v redis-volume:/data -v $(pwd)/redis.conf:/usr/local/etc/redis/redis.conf -d redis redis-server
+  ```
+  Going forward, like when you restart your laptop, you just need to run `docker container start redis`
+- setup mysql
+  ```
+  $ docker volume create mysql-volume
+  $ docker run --name mysql-db -e MYSQL_ROOT_PASSWORD='Mys&l_D3' -p 3307:3306 -v mysql-volume:/var/lib/mysql -d mysql
+  ```
+  Going forward, like when you restart your laptop, you just need to run `docker container start mysql-db`
+- Rename the .environ.test file to .environ, and update the EMAIL_USER and EMAIL_APP_PASSWORD variable to your gmail value. Research on how to get it. This will enable OTP to be sent when registering users.
+- start the application: You can use gunicorn web server or django builtin server:
+  `gunicorn studypadi.wsgi:application --bind 0.0.0.0:8000`
+  OR
+  `python3 manage.py runserver`
+- Run celery worker service. This handles email sending asynchronously
+  `python -m celery -A studypadi worker -l info`
