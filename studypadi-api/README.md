@@ -221,7 +221,7 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 ### Endpoints
 
 #### GET and POST request
-Note that following four endpoints is also used to update, if you provided the an already existing id value using a POST request. POST request takes a list of objects. GET request returns list of objects.
+Note that following four endpoints is also used for UPDATE, if you provide an already existing id value using a POST request. POST request takes a list of objects. GET request returns list of objects.
 - api/v1/modules/?id=<> | size=<> page=<> GET/POST
 - api/v1/submodule/?module_id=<> | size=<> page=<> GET/POST
 - api/v1/section/?submodule_id=<> | size=<> page=<> GET/POST
