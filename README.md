@@ -118,7 +118,7 @@ StudyPadi is more than just a quiz app; it's a complete learning ecosystem desig
 
 ## 📚 API Documentation
 
-The API documentation is available in the [studypadi_api](url(https://github.com/Vanbliser/studypadi/blob/main/studypadi-api/README.md)) folder. It covers the following endpoints:
+The API documentation is available in the [studypadi_api] https://github.com/Vanbliser/studypadi/blob/main/studypadi-api/README.md folder. It covers the following endpoints:
 - **User Authentication**: Register, login, and manage user sessions.
 - **Quiz Management**: CRUD operations for quizzes, including fetching, creating, and deleting quizzes.
 - **Study Material Upload**: Endpoints for analyzing and storing user-uploaded documents.
