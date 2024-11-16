@@ -159,5 +159,5 @@ The API documentation is available in the [studypadi_api] https://github.com/Van
   `gunicorn studypadi.wsgi:application --bind 0.0.0.0:8000`
   OR
   `python3 manage.py runserver`
-- Run celery worker service. This handles email sending asynchronously
+- Run celery worker service in another terminal window. This handles email sending asynchronously
   `python -m celery -A studypadi worker -l info`
