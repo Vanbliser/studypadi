@@ -634,14 +634,26 @@ class QuizView(GenericAPIView):
             page_obj = paginator.page(page)
             data = list(page_obj.object_list.values(
                 'id',
+                'name',
                 'module_id__title',
                 'submodule_id__title',
                 'section_id__title',
                 'topic_id__title',
                 'num_of_questions',
-                'created_at',
-                'created_by'
+                'created_at'
             ))
+            key_mapping = {
+                'id': 'quizid',
+                'module_id__title': 'module',
+                'submodule_id__title': 'submodule',
+                'section_id__title': 'section',
+                'topic_id__title': 'topic',
+                'num_of_questions': 'number_of_questions'
+            }
+            data = [
+                {key_mapping.get(k, k): v for k, v in item.items()}
+                for item in data
+            ]
             return Response(
                 {
                     "size": size,
@@ -707,42 +719,20 @@ class CreateQuestionView(GenericAPIView):
         if not isinstance(data, list):
             return Response({'error': 'Expected a list of questions'}, status=status.HTTP_400_BAD_REQUEST)
         
-        serializer = self.serializer_class(data=data)
+        user =  User.objects.get(email=request.user)
+        serializer = self.serializer_class(data=data, context={'user': user})
         if serializer.is_valid(raise_exception=True):
-            email = request.user
-            try:
-                user =  User.objects.get(email=email)
-            except User.DoesNotExist:
-                return Response({'message': 'User not found. Please register'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            else:
-                if user.user_role not in ['EDU', 'SUP', 'AIG']:
-                    return Response({'message': 'Unauthorised request'}, status=status.HTTP_401_UNAUTHORIZED)
+            print('serializer.data', serializer.data)
+            print('serializer.validated_data', serializer.validated_data)
+            if user.user_role not in ['EDU', 'SUP', 'AIG']:
+                return Response({'message': 'Unauthorised request'}, status=status.HTTP_401_UNAUTHORIZED)
             
             try:
                 with transaction.atomic():
                     questions = []
                     for question_data in serializer.validated_data:
-                        # Extract options data
                         options_data = question_data.pop('options')
-
-                        # Extract return data
-                        return_data = question_data.pop('return')
-
-                        if user.user_role == 'EDU':
-                            question_data['question_type'] = 'EDQ'
-                            return_data['question_type'] = 'EDQ'
-                        if user.user_role == 'SUP':
-                            question_data['question_type'] = 'PAQ'
-                            return_data['question_type'] = 'PAQ'
-                        if user.user_role == 'AIG':
-                            question_data['question_type'] = 'AIG'
-                            return_data['question_type'] = 'AIG'
-
-                        print('validated data', question_data)
-                        # Create question
                         question = Question.objects.create(**question_data)
-                        
-                        # Create options for this question
                         Option.objects.bulk_create([
                             Option(
                                 question_id=question,
@@ -751,8 +741,19 @@ class CreateQuestionView(GenericAPIView):
                             )
                             for option_data in options_data
                         ])
-                        
-                        questions.append(return_data)
+                        response = {
+                            'id': question.id,
+                            'module': getattr(question.module_id, 'title', None),
+                            'submodule': getattr(question.submodule_id, 'title', None),
+                            'section': getattr(question.section_id, 'title', None),
+                            'topic': getattr(question.topic_id, 'title', None),
+                            'difficulty': question.difficulty,
+                            'question_type': question.question_type,
+                            'question': question.question
+                        }
+                        cleaned_data = {k: v for k, v in response.items() if v is not None}
+                        questions.append(cleaned_data)
+                    print(questions)
                     return Response(questions, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -932,7 +933,73 @@ class SubmitMaterialView(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class QuestionView(GenericAPIView):
-    pass
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        id = request.GET.get('id')
+        if id:
+            try:
+                question = Question.objects.get(id=int(id))
+            except Question.DoesNotExist:
+                return Response({'message': 'Qustion with id not found'}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                data = {
+                    'id': question.id,
+                    'module': getattr(question.module_id, 'title', None),
+                    'submodule': getattr(question.submodule_id, 'title', None),
+                    'section': getattr(question.section_id, 'title', None),
+                    'topic': getattr(question.topic_id, 'title', None),
+                    'question_type': question.question_type,
+                    'difficulty': question.difficulty,
+                    'question': question.question
+                }
+                return Response(data, status=status.HTTP_200_OK)
+        else:
+            size = request.GET.get('size', 5)
+            page = request.GET.get('page', 1)
+            try:
+                size = int(size)
+                page = int(page)
+            except ValueError:
+                return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            queryset = Question.objects.all()
+            paginator = Paginator(queryset, size)
+            if page > paginator.num_pages or page < 1:
+                return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            page_obj = paginator.page(page)
+
+            data = list(page_obj.object_list.values(
+                'id',
+                'module_id__title',
+                'submodule_id__title',
+                'section_id__title',
+                'topic_id__title',
+                'question_type',
+                'difficulty',
+                'question'
+            ))
+            key_mapping = {
+                'module_id__title': 'module',
+                'submodule_id__title': 'submodule',
+                'section_id__title': 'section',
+                'topic_id__title': 'topic',
+            }
+            data = [
+                {key_mapping.get(k, k): v for k, v in item.items()}
+                for item in data
+            ]
+            return Response(
+                {
+                    "size": size,
+                    "page": page,
+                    "total_pages": paginator.num_pages,
+                    "total_items": paginator.count,
+                    "results": data
+                },
+                status=status.HTTP_200_OK
+            )
 
 class UserQuizResponseView(GenericAPIView):
     pass
@@ -945,3 +1012,10 @@ class SubmitQuizView(GenericAPIView):
 
 class CreateQuizView(GenericAPIView):
     pass
+
+
+# - question/  GET
+# - user/quiz/response/ GET
+# - quiz/save/  POST
+# - quiz/submit/ POST
+# - quiz/create/ POST

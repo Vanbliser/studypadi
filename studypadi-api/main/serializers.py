@@ -112,78 +112,45 @@ class OptionSerializer(serializers.ModelSerializer):
         else:
             raise serializers.ValidationError("Invalid options JSON")
 
-class CreateQuestionSerializer(serializers.Serializer):
-    module_id = serializers.IntegerField()
-    submodule_id = serializers.IntegerField()
-    section_id = serializers.IntegerField()
-    topic_id = serializers.IntegerField()
-    difficulty = serializers.CharField(max_length=3)
+class CreateQuestionSerializer(serializers.ModelSerializer):
+    module_id = serializers.PrimaryKeyRelatedField(queryset=Module.objects.all(), required=False)
+    submodule_id = serializers.PrimaryKeyRelatedField(queryset=Submodule.objects.all(), required=False)
+    section_id = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all(), required=False)
+    topic_id = serializers.PrimaryKeyRelatedField(queryset=Topic.objects.all(), required=False)
+    difficulty = serializers.ChoiceField(choices=[
+        ('EAS', 'Easy'),
+        ('MED', 'Medium'),
+        ('HRD', 'Hard'),
+    ], required=False)
     question = serializers.CharField()
     options = OptionSerializer(many=True, write_only=True)
+    question_type = serializers.ChoiceField(choices=[
+        ('EDQ', 'Educator created question'),
+        ('PAQ', 'Question from question bank created by superadmin'),
+        ('AIG', 'Generative AI question'),
+    ], required=False, read_only=True)
 
     class Meta:
-        fields = ['module_id', 'submodule_id', 'section_id', 'topic_id', 'difficulty', 'question', 'options']
+        model = Question
+        fields = ['module_id', 'submodule_id', 'section_id', 'topic_id', 'question_type', 'difficulty', 'question', 'options']
         extra_kwargs = {
             'question': {'required': True},
             'options': {'required': True}
         }
 
     def validate(self, attrs):
-
-        module_id = attrs.get('module_id', None)
-        submodule_id = attrs.get('submodule_id', None)
-        section_id = attrs.get('section_id', None)
-        topic_id = attrs.get('topic_id', None)
-        difficulty = attrs.get('difficulty', None)
         question = attrs.get('question', None)
-        
-        module = Module.objects.filter(id=module_id).first()
-        submodule = Submodule.objects.filter(id=submodule_id).first()
-        section = Section.objects.filter(id=section_id).first()
-        topic = Topic.objects.filter(id=topic_id).first()
-        if difficulty not in ['EAS', 'HRD', 'MED']:
-            difficulty = "EAS"
-
-        if question == "":
+        if not question:
             raise serializers.ValidationError("Bad request. empty question")
         
-        return_data = dict()
-        if module:
-            return_data['module'] = module.title
-        if submodule:
-            return_data['submodule'] = submodule.title
-        if section:
-            return_data['section'] = section.title
-        if topic:
-            return_data['topic'] = topic.title
-        return_data['difficulty'] = difficulty
-        return_data['question'] = question
-
-        print('return data', return_data)
-
-        data = {
-            'module_id': module,
-            'submodule_id': submodule,
-            'section_id': section,
-            'topic_id': topic,
-            'difficulty': difficulty,
-            'question': question,
-            'options': attrs.get('options'),
-            'return': return_data
-        }
-        cleaned_data = {k: v for k, v in data.items() if v is not None}
-        return cleaned_data
-    
-    def to_representation(self, instance):
-        """
-        Override to include options in the response
-        """
-        representation = super().to_representation(instance)
-        representation['options'] = OptionSerializer(
-            Option.objects.filter(question=instance),
-            many=True
-        ).data
-        return representation
+        user = self.context.get('user')
+        if user.user_role == 'EDU':
+            attrs['question_type'] = 'EDQ'
+        if user.user_role == 'SUP':
+            attrs['question_type'] = 'PAQ'
+        if user.user_role == 'AIG':
+            attrs['question_type'] = 'AIG'
+        return attrs
 
 class CreateQuestionListSerializer(serializers.ListSerializer):
     child = CreateQuestionSerializer()
