@@ -234,17 +234,17 @@ Note that following four endpoints is also used for UPDATE, if you provide an al
 - api/v1/user/quiz/revision-test/?quizid=<> | size=<> page=<> GET
 - api/v1/quiz/?moduleid=<> | submoduleid=<> | sectionid=<> | topicid=<>  | educatorid=<>  | educator_name=<> | quizid=<> | quizname=<> search=<> | size=<> page=<> GET
 - api/v1/quiz/question/quizid=<> GET
+- api/v1/question/?id=<> GET
 #### POST requeests
 - api/v1/question/create POST
 - api/v1/quiz/generate/ POST
+- api/v1/submit-material POST
 
 **NOT IMPLEMENTED**
 - api/v1/user/quiz/response/?quizid GET
-- api/v1/question/?id=<> GET
 - api/v1/quiz/save/ POST
 - api/v1/quiz/submit/ POST
 - api/v1/quiz/create/ POST
-- api/v1/submit-material POST
 
 ### Description
 - modules/ :endpoint to get all modules, or create/update modules using a list of module objects with the following parameter:
@@ -285,9 +285,9 @@ Note that following four endpoints is also used for UPDATE, if you provide an al
       - MOF - Most failed
       - LEA - Least attempted
 - submit-material/ :receives a JSON with name, num_of_questions, and text fields. The name represent the name of the quiz that would be generated. num_of-questions represent the num of question you want generated, and text represent the study material text that questions would be generated out of.
+- question/ :get all questions or a single question if you provide the id of the question in a query parameter 'id'
 
 - quiz/save/ 
 - quiz/submit/ 
 - quiz/create/ 
-- question/  
 - question/create/ 
