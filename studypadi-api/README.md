@@ -220,12 +220,11 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 
 ### Endpoints
 
-#### GET and POST request
-Note that following four endpoints is also used for UPDATE, if you provide an already existing id value using a POST request. POST request takes a list of objects. GET request returns list of objects.
-- api/v1/modules/?id=<> | size=<> page=<> GET/POST
-- api/v1/submodule/?module_id=<> | size=<> page=<> GET/POST
-- api/v1/section/?submodule_id=<> | size=<> page=<> GET/POST
-- api/v1/topic/?section_id=<> | size=<> page=<> GET/POST
+#### GET POST and PATCH request
+- api/v1/modules/?id=<> | size=<> page=<> GET/POST/PATCH
+- api/v1/submodule/?module_id=<> | size=<> page=<> GET/POST/PATCH
+- api/v1/section/?submodule_id=<> | size=<> page=<> GET/POST/PATCH
+- api/v1/topic/?section_id=<> | size=<> page=<> GET/POST/PATCH
 #### GET requests
 - api/v1/user/ GET
 - api/v1/user/quiz/?quizid=<> | size=<> page=<> GET
@@ -263,6 +262,7 @@ Note that following four endpoints is also used for UPDATE, if you provide an al
 - user/quiz/prefilled/  :same as above just prefilled quiz 
 - user/quiz/realtime/  :same as above, just realtime quiz
 - user/quiz/revision-test/ :same as above, just revision-test quiz
+- user/quiz/response/ quiid=<> : returns a quiz or all quiz of a user, with all questions, options, and choses option of the user
 - quiz/  :returns a list of quizzes following the support query strings. precedence is as follows quizid > educatorid > topicid > sectionid > submoduleid > moduleid > quizname == educatorname == search
 - quiz/question/  :returns all questions associated with a quiz provided by the quizid parameter
 - quiz/generate/ :generate quiz by applying the following filter (module, submodule, section, topic, question_type, difficulty, algorithm), where:
@@ -286,8 +286,8 @@ Note that following four endpoints is also used for UPDATE, if you provide an al
       - LEA - Least attempted
 - submit-material/ :receives a JSON with name, num_of_questions, and text fields. The name represent the name of the quiz that would be generated. num_of-questions represent the num of question you want generated, and text represent the study material text that questions would be generated out of.
 - question/ :get all questions or a single question if you provide the id of the question in a query parameter 'id'
+- question/create/ :takes in a list of questions each with all their associated options. 
 
 - quiz/save/ 
 - quiz/submit/ 
 - quiz/create/ 
-- question/create/ 

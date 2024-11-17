@@ -127,4 +127,4 @@ class Quiz_attempt(models.Model):
 class Response(models.Model):
     quiz_attempt = models.ForeignKey(Quiz_attempt, on_delete=models.CASCADE)
     question_id = models.ForeignKey(Question, on_delete=models.PROTECT)
-    chosen_option = models.ForeignKey(Option, on_delete=models.PROTECT)
+    chosen_option = models.ForeignKey(Option, on_delete=models.PROTECT, null=True)

@@ -2,34 +2,38 @@ from rest_framework import serializers
 from .models import Module, Submodule, Section, Topic, Question, Quiz, Quiz_attempt, Response, Option
 from account.models import User
 
+def check(superset, subset):
+    for key in superset:
+        if key not in subset:
+            return True
+    return False 
 
 class ModuleSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(required=False, read_only=True)
     title = serializers.CharField()
     description = serializers.CharField()
 
     class Meta:
         model = Module
         fields = ['id', 'title', 'description']
-        extra_kwargs = {
-            'title': {'required': True},
-            'description': {'required': True},
-        }
     
     def validate(self, attrs):
         # check for additional fields
         allowed_fields = set(self.fields.keys())
-        for initial_data in self.initial_data:
-            extra_fields = set(initial_data.keys()) - allowed_fields
-            if extra_fields:
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
                 raise serializers.ValidationError("Bad request. Unknown field(s).")
         return attrs
 
 class SubmoduleSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(required=False, read_only=True)
     title = serializers.CharField()
     description = serializers.CharField()
-    module_id = serializers.IntegerField()
+    module_id = serializers.PrimaryKeyRelatedField(queryset=Module.objects.all())
 
     class Meta:
         model = Submodule
@@ -43,18 +47,20 @@ class SubmoduleSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         # check for additional fields
         allowed_fields = set(self.fields.keys())
-        for initial_data in self.initial_data:
-            extra_fields = set(initial_data.keys()) - allowed_fields
-            if extra_fields:
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
                 raise serializers.ValidationError("Bad request. Unknown field(s).")
-        print(attrs)
         return attrs
-    
+
 class SectionSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(required=False, read_only=True)
     title = serializers.CharField()
     description = serializers.CharField()
-    submodule_id = serializers.IntegerField()
+    submodule_id = serializers.PrimaryKeyRelatedField(queryset=Submodule.objects.all())
 
     class Meta:
         model = Section
@@ -68,17 +74,20 @@ class SectionSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         # check for additional fields
         allowed_fields = set(self.fields.keys())
-        for initial_data in self.initial_data:
-            extra_fields = set(initial_data.keys()) - allowed_fields
-            if extra_fields:
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
                 raise serializers.ValidationError("Bad request. Unknown field(s).")
         return attrs
 
 class TopicSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
+    id = serializers.IntegerField(required=False, read_only=True)
     title = serializers.CharField()
     description = serializers.CharField()
-    section_id = serializers.IntegerField()
+    section_id = serializers.PrimaryKeyRelatedField(queryset=Section.objects.all())
 
     class Meta:
         model = Topic
@@ -92,9 +101,12 @@ class TopicSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         # check for additional fields
         allowed_fields = set(self.fields.keys())
-        for initial_data in self.initial_data:
-            extra_fields = set(initial_data.keys()) - allowed_fields
-            if extra_fields:
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
                 raise serializers.ValidationError("Bad request. Unknown field(s).")
         return attrs
 
@@ -108,10 +120,19 @@ class OptionSerializer(serializers.ModelSerializer):
         }
     def validate(self, attrs):
         if isinstance(attrs['is_answer'], bool) or attrs['option'] != "":
+            # check for additional fields
+            allowed_fields = set(self.fields.keys())
+            if isinstance(self.initial_data, list):
+                for initial_data in self.initial_data:
+                    if check(initial_data, allowed_fields):
+                        raise serializers.ValidationError("Bad request. Unknown field(s).")
+            else:
+                if self.check(self.initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
             return attrs
         else:
             raise serializers.ValidationError("Invalid options JSON")
-
+        
 class CreateQuestionSerializer(serializers.ModelSerializer):
     module_id = serializers.PrimaryKeyRelatedField(queryset=Module.objects.all(), required=False)
     submodule_id = serializers.PrimaryKeyRelatedField(queryset=Submodule.objects.all(), required=False)
@@ -150,6 +171,17 @@ class CreateQuestionSerializer(serializers.ModelSerializer):
             attrs['question_type'] = 'PAQ'
         if user.user_role == 'AIG':
             attrs['question_type'] = 'AIG'
+
+        # check for additional fields
+        allowed_fields = set(self.fields.keys())
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
+                raise serializers.ValidationError("Bad request. Unknown field(s).")
+
         return attrs
 
 class CreateQuestionListSerializer(serializers.ListSerializer):
@@ -195,10 +227,15 @@ class GenerateQuizSerializer(serializers.Serializer):
         }
     
     def validate(self, attrs):
+        # check for additional fields
         allowed_fields = set(self.fields.keys())
-        extra_fields = set(self.initial_data.keys()) - allowed_fields
-        if extra_fields:
-            raise serializers.ValidationError("Bad request. Unknown field(s).")
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
+                raise serializers.ValidationError("Bad request. Unknown field(s).")
         return attrs
 
 class SubmitMaterialSerializer(serializers.Serializer):
@@ -216,10 +253,15 @@ class SubmitMaterialSerializer(serializers.Serializer):
         }
     
     def validate(self, attrs):
+        # check for additional fields
         allowed_fields = set(self.fields.keys())
-        extra_fields = set(self.initial_data.keys()) - allowed_fields
-        if extra_fields:
-            raise serializers.ValidationError("Bad request. Unknown field(s).")
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
+                raise serializers.ValidationError("Bad request. Unknown field(s).")
         return attrs
 
 class SaveQuizSerializer(serializers.Serializer):
@@ -235,7 +277,15 @@ class SaveQuizSerializer(serializers.Serializer):
         }
     
     def validate(self, attrs):
-        pass
+        # check for additional fields
+        allowed_fields = set(self.fields.keys())
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
+                raise serializers.ValidationError("Bad request. Unknown field(s).")
 
 class SubmitQuizSerializer(serializers.Serializer):
 
@@ -250,7 +300,15 @@ class SubmitQuizSerializer(serializers.Serializer):
         }
     
     def validate(self, attrs):
-        pass
+        # check for additional fields
+        allowed_fields = set(self.fields.keys())
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
+                raise serializers.ValidationError("Bad request. Unknown field(s).")
 
 class CreateQuizSerializer(serializers.Serializer):
 
@@ -265,4 +323,12 @@ class CreateQuizSerializer(serializers.Serializer):
         }
     
     def validate(self, attrs):
-        pass
+        # check for additional fields
+        allowed_fields = set(self.fields.keys())
+        if isinstance(self.initial_data, list):
+            for initial_data in self.initial_data:
+                if check(initial_data, allowed_fields):
+                    raise serializers.ValidationError("Bad request. Unknown field(s).")
+        else:
+            if self.check(self.initial_data, allowed_fields):
+                raise serializers.ValidationError("Bad request. Unknown field(s).")

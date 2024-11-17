@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
+from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -16,10 +17,11 @@ import re
 # Create your views here.
 
 class ModulesView(GenericAPIView):
+
     permission_classes = [IsAuthenticated]
+    serializer_class = ModuleSerializer
 
     def get(self, request):
-    
         size = request.GET.get('size', 5)
         page = request.GET.get('page', 1)
         try:
@@ -34,53 +36,65 @@ class ModulesView(GenericAPIView):
             return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
         
         page_obj = paginator.page(page)
-        data = list(page_obj.object_list.values('id', 'title', 'description'))
+        serializer = self.serializer_class(instance=page_obj.object_list, many=True)
         return Response(
             {
                 "size": size,
                 "page": page,
                 "total_pages": paginator.num_pages,
                 "total_items": paginator.count,
-                "results": data
+                "results": serializer.data
             },
             status=status.HTTP_200_OK
         )
 
     def post(self, request):
-        serializer = ModuleSerializer(data=request.data, context={'request': request}, many=True)
-
-        if not isinstance(request.data, list):
-            return Response({"detail": "Request data must be a list"}, status=status.HTTP_400_BAD_REQUEST)
         user = User.objects.get(email=request.user)
         if user.user_role not in ['SUP', 'AID', 'EDU']:
             return Response({'message': "You don't have permission to create or update"}, status=status.HTTP_403_FORBIDDEN)
         
+        serializer = self.serializer_class(data=request.data, many=True)
         if serializer.is_valid():
-            instances = []
-            for data in serializer.validated_data:
-                id = data.get('id', None)
-                if id:
-                    module = Module.objects.filter(id=int(id)).first()
-                    if module:
-                        for attr, value in data.items():
-                            setattr(module, attr, value)
-                        module.save()
-                        instances.append(module)
-                    else:
-                        module = Module.objects.create(title=data['title'], description=data['description'], created_by=user)
-                        instances.append(module)
-                else:
-                    module = Module.objects.create(title=data['title'], description=data['description'], created_by=user)
-                    instances.append(module)
-
-            # Serialize the results
-            response_serializer = ModuleSerializer(instances, many=True)
-            return Response(response_serializer.data, status=status.HTTP_200_OK)
-            # return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request):
+        if not isinstance(request.data, list):
+            return Response({'message': 'List of objects required.'})
+        errors = []
+        returned_data = []
+        combined = []
+        for data in request.data:
+            try:
+                id = int(data.get("id"))
+            except:
+                errors.append({'error': f'Invalid {data.get("id")} id'})
+                combined.append({'error': f'Invalid {data.get("id")} id'})
+            else:
+                try:
+                    module = Module.objects.get(id=id)
+                except Module.DoesNotExist:
+                    errors.append({"error": f"ID {id} does not exist"})
+                    combined.append({"error": f"ID {id} does not exist"})
+                else:
+                    serializer = self.serializer_class(instance=module, data=data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        returned_data.append(serializer.data)
+                        combined.append(serializer.data)
+                    else:
+                        errors.append(serializer.errors)
+                        combined.append(serializer.errors)
+        if errors and returned_data:
+            return Response(combined, status=status.HTTP_207_MULTI_STATUS)
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(returned_data, status=status.HTTP_200_OK)
 
 class SubmodulesView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = SubmoduleSerializer
 
     def get(self, request):
         size = request.GET.get('size', 5)
@@ -97,72 +111,65 @@ class SubmodulesView(GenericAPIView):
             return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
         
         page_obj = paginator.page(page)
-        data = list(page_obj.object_list.values('id', 'title', 'description', 'module_id'))
+        serializer = self.serializer_class(many=True, instance=page_obj.object_list)
         return Response(
             {
                 "size": size,
                 "page": page,
                 "total_pages": paginator.num_pages,
                 "total_items": paginator.count,
-                "results": data
+                "results": serializer.data
             },
             status=status.HTTP_200_OK
         )
 
     def post(self, request):
-        serializer = SubmoduleSerializer(data=request.data, context={'request': request}, many=True)
-
-        if not isinstance(request.data, list):
-            return Response({"detail": "Request data must be a list"}, status=status.HTTP_400_BAD_REQUEST)
         user = User.objects.get(email=request.user)
         if user.user_role not in ['SUP', 'AID', 'EDU']:
             return Response({'message': "You don't have permission to create or update"}, status=status.HTTP_403_FORBIDDEN)
         
+        serializer = self.serializer_class(data=request.data, many=True)
         if serializer.is_valid():
-            instances = []
-            for data in serializer.validated_data:
-                args = {}
-                id = data.get('id', None)
-                module_id = data.get('module_id', None)
-                module = Module.objects.filter(id=module_id).first()
-                if module:
-                    args['module_id'] = module
-                    data['module_id'] = module
-                else:
-                    del data['module_id']
-                if id:
-                    submodule = Submodule.objects.filter(id=int(id)).first()
-                    if submodule:
-                        for attr, value in data.items():
-                            setattr(submodule, attr, value)
-                        submodule.save()
-                        instances.append({
-                            "id": submodule.id,
-                            "module_id": submodule.module_id.id,
-                            "title": submodule.title,
-                            "description": submodule.description
-                        })
-                    else:
-                        submodule = Submodule.objects.create(title=data['title'], description=data['description'], created_by=user, **args)
-                        instances.append({
-                            "id": submodule.id,
-                            "module_id": submodule.module_id.id,
-                            "title": submodule.title,
-                            "description": submodule.description
-                        })
-                else:
-                    submodule = Submodule.objects.create(title=data['title'], description=data['description'], created_by=user, **args)
-                    instances.append({
-                        "id": submodule.id,
-                        "module_id": submodule.module_id.id,
-                        "title": submodule.title,
-                        "description": submodule.description
-                    })
-            return Response(instances, status=status.HTTP_200_OK)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request):
+        if not isinstance(request.data, list):
+            return Response({'message': 'List of objects required.'})
+        errors = []
+        returned_data = []
+        combined = []
+        for data in request.data:
+            try:
+                id = int(data.get("id"))
+            except:
+                errors.append({'error': f'Invalid {data.get("id")} id'})
+                combined.append({'error': f'Invalid {data.get("id")} id'})
+            else:
+                try:
+                    module = Submodule.objects.get(id=id)
+                except Submodule.DoesNotExist:
+                    errors.append({"error": f"ID {id} does not exist"})
+                    combined.append({"error": f"ID {id} does not exist"})
+                else:
+                    serializer = self.serializer_class(instance=module, data=data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        returned_data.append(serializer.data)
+                        combined.append(serializer.data)
+                    else:
+                        errors.append(serializer.errors)
+                        combined.append(serializer.errors)
+        if errors and returned_data:
+            return Response(combined, status=status.HTTP_207_MULTI_STATUS)
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(returned_data, status=status.HTTP_200_OK)
 
 class SectionView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = SectionSerializer
     
     def get(self, request):
         size = request.GET.get('size', 5)
@@ -179,72 +186,65 @@ class SectionView(GenericAPIView):
             return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
         
         page_obj = paginator.page(page)
-        data = list(page_obj.object_list.values('id', 'title', 'description', 'submodule_id'))
+        serializer = self.serializer_class(many=True, instance=page_obj.object_list)
         return Response(
             {
                 "size": size,
                 "page": page,
                 "total_pages": paginator.num_pages,
                 "total_items": paginator.count,
-                "results": data
+                "results": serializer.data
             },
             status=status.HTTP_200_OK
         )
 
     def post(self, request):
-        serializer = SectionSerializer(data=request.data, context={'request': request}, many=True)
-
-        if not isinstance(request.data, list):
-            return Response({"detail": "Request data must be a list"}, status=status.HTTP_400_BAD_REQUEST)
         user = User.objects.get(email=request.user)
         if user.user_role not in ['SUP', 'AID', 'EDU']:
             return Response({'message': "You don't have permission to create or update"}, status=status.HTTP_403_FORBIDDEN)
         
+        serializer = self.serializer_class(data=request.data, many=True)
         if serializer.is_valid():
-            instances = []
-            for data in serializer.validated_data:
-                args = {}
-                id = data.get('id', None)
-                submodule_id = data.get('submodule_id', None)
-                submodule = Submodule.objects.filter(id=submodule_id).first()
-                if submodule:
-                    args['submodule_id'] = submodule
-                    data['submodule_id'] = submodule
-                else:
-                    del data['submodule_id']
-                if id:
-                    section = Section.objects.filter(id=int(id)).first()
-                    if section:
-                        for attr, value in data.items():
-                            setattr(section, attr, value)
-                        section.save()
-                        instances.append({
-                            "id": section.id,
-                            "submodule_id": section.submodule_id.id,
-                            "title": section.title,
-                            "description": section.description
-                        })
-                    else:
-                        section = Section.objects.create(title=data['title'], description=data['description'], created_by=user, **args)
-                        instances.append({
-                            "id": section.id,
-                            "submodule_id": section.submodule_id.id,
-                            "title": section.title,
-                            "description": section.description
-                        })
-                else:
-                    section = Section.objects.create(title=data['title'], description=data['description'], created_by=user, **args)
-                    instances.append({
-                        "id": section.id,
-                        "module_id": section.submodule_id.id,
-                        "title": section.title,
-                        "description": section.description
-                    })
-            return Response(instances, status=status.HTTP_200_OK)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request):
+        if not isinstance(request.data, list):
+            return Response({'message': 'List of objects required.'})
+        errors = []
+        returned_data = []
+        combined = []
+        for data in request.data:
+            try:
+                id = int(data.get("id"))
+            except:
+                errors.append({'error': f'Invalid {data.get("id")} id'})
+                combined.append({'error': f'Invalid {data.get("id")} id'})
+            else:
+                try:
+                    module = Section.objects.get(id=id)
+                except Section.DoesNotExist:
+                    errors.append({"error": f"ID {id} does not exist"})
+                    combined.append({"error": f"ID {id} does not exist"})
+                else:
+                    serializer = self.serializer_class(instance=module, data=data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        returned_data.append(serializer.data)
+                        combined.append(serializer.data)
+                    else:
+                        errors.append(serializer.errors)
+                        combined.append(serializer.errors)
+        if errors and returned_data:
+            return Response(combined, status=status.HTTP_207_MULTI_STATUS)
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(returned_data, status=status.HTTP_200_OK)
 
 class TopicView(GenericAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = TopicSerializer
 
     def get(self, request):
         size = request.GET.get('size', 5)
@@ -261,69 +261,61 @@ class TopicView(GenericAPIView):
             return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
         
         page_obj = paginator.page(page)
-        data = list(page_obj.object_list.values('id', 'title', 'description', 'section_id'))
+        serializer = self.serializer_class(many=True, instance=page_obj.object_list)
         return Response(
             {
                 "size": size,
                 "page": page,
                 "total_pages": paginator.num_pages,
                 "total_items": paginator.count,
-                "results": data
+                "results": serializer.data
             },
             status=status.HTTP_200_OK
         )
 
     def post(self, request):
-        serializer = TopicSerializer(data=request.data, context={'request': request}, many=True)
-
-        if not isinstance(request.data, list):
-            return Response({"detail": "Request data must be a list"}, status=status.HTTP_400_BAD_REQUEST)
         user = User.objects.get(email=request.user)
         if user.user_role not in ['SUP', 'AID', 'EDU']:
             return Response({'message': "You don't have permission to create or update"}, status=status.HTTP_403_FORBIDDEN)
         
+        serializer = self.serializer_class(data=request.data, many=True)
         if serializer.is_valid():
-            instances = []
-            for data in serializer.validated_data:
-                args = {}
-                id = data.get('id', None)
-                section_id = data.get('section_id', None)
-                section = Section.objects.filter(id=section_id).first()
-                if section:
-                    args['section_id'] = section
-                    data['section_id'] = section
-                else:
-                    del data['section_id']
-                if id:
-                    topic = Topic.objects.filter(id=int(id)).first()
-                    if topic:
-                        for attr, value in data.items():
-                            setattr(topic, attr, value)
-                        topic.save()
-                        instances.append({
-                            "id": topic.id,
-                            "section_id": topic.section_id.id,
-                            "title": topic.title,
-                            "description": topic.description
-                        })
-                    else:
-                        topic = Topic.objects.create(title=data['title'], description=data['description'], created_by=user, **args)
-                        instances.append({
-                            "id": topic.id,
-                            "section_id": topic.section_id.id,
-                            "title": topic.title,
-                            "description": topic.description
-                        })
-                else:
-                    topic = Topic.objects.create(title=data['title'], description=data['description'], created_by=user, **args)
-                    instances.append({
-                        "id": topic.id,
-                        "section_id": topic.section_id.id,
-                        "title": topic.title,
-                        "description": topic.description
-                    })
-            return Response(instances, status=status.HTTP_200_OK)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def patch(self, request):
+        if not isinstance(request.data, list):
+            return Response({'message': 'List of objects required.'})
+        errors = []
+        returned_data = []
+        combined = []
+        for data in request.data:
+            try:
+                id = int(data.get("id"))
+            except:
+                errors.append({'error': f'Invalid {data.get("id")} id'})
+                combined.append({'error': f'Invalid {data.get("id")} id'})
+            else:
+                try:
+                    module = Topic.objects.get(id=id)
+                except Topic.DoesNotExist:
+                    errors.append({"error": f"ID {id} does not exist"})
+                    combined.append({"error": f"ID {id} does not exist"})
+                else:
+                    serializer = self.serializer_class(instance=module, data=data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        returned_data.append(serializer.data)
+                        combined.append(serializer.data)
+                    else:
+                        errors.append(serializer.errors)
+                        combined.append(serializer.errors)
+        if errors and returned_data:
+            return Response(combined, status=status.HTTP_207_MULTI_STATUS)
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(returned_data, status=status.HTTP_200_OK)
 
 class UserView(GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -349,7 +341,7 @@ class UserQuizView(GenericAPIView):
 
         email = request.user
         try:
-            user = user = User.objects.get(email=email)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             return Response({'message': "User not found! Please register again"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -391,7 +383,7 @@ class UserPrefilledQuizView(GenericAPIView):
 
         email = request.user
         try:
-            user = user = User.objects.get(email=email)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             return Response({'message': "User not found! Please register again"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -433,7 +425,7 @@ class UserRealtimeQuizView(GenericAPIView):
 
         email = request.user
         try:
-            user = user = User.objects.get(email=email)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             return Response({'message': "User not found! Please register again"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -475,7 +467,7 @@ class UserRevisionTestQuizView(GenericAPIView):
 
         email = request.user
         try:
-            user = user = User.objects.get(email=email)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
             return Response({'message': "User not found! Please register again"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -1002,7 +994,106 @@ class QuestionView(GenericAPIView):
             )
 
 class UserQuizResponseView(GenericAPIView):
-    pass
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get query parameters
+        quiz_id = request.GET.get('quizid')
+        user = request.user
+        size = int(request.GET.get('size', 5))
+        page = int(request.GET.get('page', 1))
+
+        try:
+            if quiz_id:
+                # Fetch the specific `Quiz_attempt`
+                attempt = Quiz_attempt.objects.filter(taken_by=user, quiz_id=quiz_id).prefetch_related('response_set__chosen_option', 'quiz_id__questions__option_set').first()
+                if not attempt:
+                    return Response({'message': 'Quiz attempt not found'}, status=status.HTTP_404_NOT_FOUND)
+
+                # Map questions to responses
+                question_to_response = {res.question_id.id: res for res in attempt.response_set.all()}
+                questions = attempt.quiz_id.questions.prefetch_related('option_set').all()
+
+                # Serialize the `Quiz_attempt` and its associated `Response` objects
+                quiz_attempt_data = {
+                    "quiz_id": attempt.quiz_id.id,
+                    "score": attempt.score,
+                    "status": attempt.status,
+                    "time_taken": attempt.time_taken,
+                    "responses": [
+                        {
+                            "question_id": ques.id,
+                            "question": ques.question,
+                            "option_1_id": opt[0].id if len(opt) > 0 else None,
+                            "option_1": opt[0].option if len(opt) > 0 else None,
+                            "option_2_id": opt[1].id if len(opt) > 1 else None,
+                            "option_2": opt[1].option if len(opt) > 1 else None,
+                            "option_3_id": opt[2].id if len(opt) > 2 else None,
+                            "option_3": opt[2].option if len(opt) > 2 else None,
+                            "option_4_id": opt[3].id if len(opt) > 3 else None,
+                            "option_4": opt[3].option if len(opt) > 3 else None,
+                            "chosen_option_id": question_to_response.get(ques.id).chosen_option.id if ques.id in question_to_response else None
+                        }
+                        for ques in questions
+                        for opt in [list(ques.option_set.all())]  # Fetch options only once per question
+                    ]
+                }
+                return Response(quiz_attempt_data, status=status.HTTP_200_OK)
+
+            else:
+                # Fetch all `Quiz_attempt` objects for the user
+                queryset = Quiz_attempt.objects.filter(taken_by=user).prefetch_related('response_set__chosen_option', 'quiz_id__questions__option_set')
+
+                # Apply pagination
+                paginator = Paginator(queryset, size)
+                if page > paginator.num_pages or page < 1:
+                    return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
+
+                page_obj = paginator.page(page)
+
+                # Serialize data
+                results = []
+                for attempt in page_obj.object_list:
+                    question_to_response = {res.question_id.id: res for res in attempt.response_set.all()}
+                    questions = attempt.quiz_id.questions.prefetch_related('option_set').all()
+
+                    quiz_attempt_data = {
+                        "quiz_id": attempt.quiz_id.id,
+                        "score": attempt.score,
+                        "status": attempt.status,
+                        "time_taken": attempt.time_taken,
+                        "responses": [
+                            {
+                                "question_id": ques.id,
+                                "question": ques.question,
+                                "option_1_id": opt[0].id if len(opt) > 0 else None,
+                                "option_1": opt[0].option if len(opt) > 0 else None,
+                                "option_2_id": opt[1].id if len(opt) > 1 else None,
+                                "option_2": opt[1].option if len(opt) > 1 else None,
+                                "option_3_id": opt[2].id if len(opt) > 2 else None,
+                                "option_3": opt[2].option if len(opt) > 2 else None,
+                                "option_4_id": opt[3].id if len(opt) > 3 else None,
+                                "option_4": opt[3].option if len(opt) > 3 else None,
+                                "chosen_option_id": question_to_response.get(ques.id).chosen_option.id if ques.id in question_to_response else None
+                            }
+                            for ques in questions
+                            for opt in [list(ques.option_set.all())]
+                        ]
+                    }
+                    results.append(quiz_attempt_data)
+
+                # Response data
+                response_data = {
+                    "size": size,
+                    "page": page,
+                    "total_pages": paginator.num_pages,
+                    "total_items": paginator.count,
+                    "results": results,
+                }
+                return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class SaveQuizView(GenericAPIView):
     pass
@@ -1012,10 +1103,3 @@ class SubmitQuizView(GenericAPIView):
 
 class CreateQuizView(GenericAPIView):
     pass
-
-
-# - question/  GET
-# - user/quiz/response/ GET
-# - quiz/save/  POST
-# - quiz/submit/ POST
-# - quiz/create/ POST
