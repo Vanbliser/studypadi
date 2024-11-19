@@ -237,13 +237,11 @@ Note that a postman collection has been addesd to this repo
 - api/v1/quiz/?moduleid=<> | submoduleid=<> | sectionid=<> | topicid=<>  | educatorid=<>  | educator_name=<> | quizid=<> | quizname=<> search=<> | size=<> page=<> GET
 - api/v1/quiz/question/quizid=<> GET
 - api/v1/question/?id=<> GET
+- api/v1/user/quiz/response/?quizid GET
 #### POST requeests
 - api/v1/question/create POST
 - api/v1/quiz/generate/ POST
 - api/v1/submit-material POST
-
-**NOT IMPLEMENTED**
-- api/v1/user/quiz/response/?quizid GET
 - api/v1/quiz/save/ POST
 - api/v1/quiz/submit/ POST
 - api/v1/quiz/create/ POST
