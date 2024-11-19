@@ -1,6 +1,5 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
-from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,11 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 from account.models import User
 from django.db import transaction
 from .models import Module, Submodule, Section, Topic, Question, Option, Quiz, Quiz_attempt, get_ai_gen_user, Response as ResponseModel
-from .serializers import ModuleSerializer, SubmoduleSerializer, SectionSerializer, TopicSerializer, CreateQuestionListSerializer, GenerateQuizSerializer, SaveQuizSerializer, SubmitQuizSerializer, CreateQuizSerializer, SubmitMaterialSerializer
+from .serializers import ResponseSerializer, ModuleSerializer, SubmoduleSerializer, SectionSerializer, TopicSerializer, CreateQuestionListSerializer, GenerateQuizSerializer, QuizSerializer, CreateQuizSerializer, SubmitMaterialSerializer
 import random
 from .ai import get_completion
 import json
 import re
+from django.forms.models import model_to_dict
 
 # Create your views here.
 
@@ -279,7 +279,7 @@ class TopicView(GenericAPIView):
             return Response({'message': "You don't have permission to create or update"}, status=status.HTTP_403_FORBIDDEN)
         
         serializer = self.serializer_class(data=request.data, many=True)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -364,7 +364,7 @@ class UserQuizView(GenericAPIView):
             return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
         
         page_obj = paginator.page(page)
-        data = list(page_obj.object_list.values('quiz_id', 'score', 'status', 'time_taken'))
+        data = list(page_obj.object_list.values('id', 'quiz_id', 'score', 'status', 'time_taken'))
         return Response(
             {
                 "size": size,
@@ -406,7 +406,7 @@ class UserPrefilledQuizView(GenericAPIView):
             return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
         
         page_obj = paginator.page(page)
-        data = list(page_obj.object_list.values('quiz_id', 'score', 'status', 'time_taken'))
+        data = list(page_obj.object_list.values('id', 'quiz_id', 'score', 'status', 'time_taken'))
         return Response(
             {
                 "size": size,
@@ -448,7 +448,7 @@ class UserRealtimeQuizView(GenericAPIView):
             return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
         
         page_obj = paginator.page(page)
-        data = list(page_obj.object_list.values('quiz_id', 'score', 'status', 'time_taken'))
+        data = list(page_obj.object_list.values('id', 'quiz_id', 'score', 'status', 'time_taken'))
         return Response(
             {
                 "size": size,
@@ -490,7 +490,7 @@ class UserRevisionTestQuizView(GenericAPIView):
             return Response({'message': 'Invalid query parameters'}, status=status.HTTP_400_BAD_REQUEST)
         
         page_obj = paginator.page(page)
-        data = list(page_obj.object_list.values('quiz_id', 'score', 'status', 'time_taken'))
+        data = list(page_obj.object_list.values('id', 'quiz_id', 'score', 'status', 'time_taken'))
         return Response(
             {
                 "size": size,
@@ -714,8 +714,6 @@ class CreateQuestionView(GenericAPIView):
         user =  User.objects.get(email=request.user)
         serializer = self.serializer_class(data=data, context={'user': user})
         if serializer.is_valid(raise_exception=True):
-            print('serializer.data', serializer.data)
-            print('serializer.validated_data', serializer.validated_data)
             if user.user_role not in ['EDU', 'SUP', 'AIG']:
                 return Response({'message': 'Unauthorised request'}, status=status.HTTP_401_UNAUTHORIZED)
             
@@ -733,6 +731,7 @@ class CreateQuestionView(GenericAPIView):
                             )
                             for option_data in options_data
                         ])
+                        created_options = Option.objects.filter(question_id=question).values('id', 'question_id', 'option', 'is_answer')
                         response = {
                             'id': question.id,
                             'module': getattr(question.module_id, 'title', None),
@@ -741,11 +740,11 @@ class CreateQuestionView(GenericAPIView):
                             'topic': getattr(question.topic_id, 'title', None),
                             'difficulty': question.difficulty,
                             'question_type': question.question_type,
-                            'question': question.question
+                            'question': question.question,
+                            'options': list(created_options)
                         }
                         cleaned_data = {k: v for k, v in response.items() if v is not None}
                         questions.append(cleaned_data)
-                    print(questions)
                     return Response(questions, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -873,10 +872,10 @@ class SubmitMaterialView(GenericAPIView):
             validated_data = serializer.validated_data
             name = validated_data.get("name", "AI Gen")
             text = validated_data.get("text")
+            level = validated_data.get("level")
             num_of_questions = validated_data.get("num_of_questions")
-            response = get_completion(text=text, num_of_questions=num_of_questions)
+            response = get_completion(text=text, level=level, num_of_questions=num_of_questions)
             response = re.search(r'\[.*?(?:\[.*?\].*?)*\]', response, re.DOTALL).group(0)
-            print(response)
             # Parse the JSON response
             try:
                 questions_data = json.loads(response)
@@ -998,24 +997,25 @@ class UserQuizResponseView(GenericAPIView):
 
     def get(self, request):
         # Get query parameters
-        quiz_id = request.GET.get('quizid')
-        user = request.user
+        id = request.GET.get('id')
+        user = User.objects.get(email=request.user)
         size = int(request.GET.get('size', 5))
         page = int(request.GET.get('page', 1))
 
         try:
-            if quiz_id:
+            if id:
                 # Fetch the specific `Quiz_attempt`
-                attempt = Quiz_attempt.objects.filter(taken_by=user, quiz_id=quiz_id).prefetch_related('response_set__chosen_option', 'quiz_id__questions__option_set').first()
+                attempt = Quiz_attempt.objects.filter(taken_by=user, id=id).prefetch_related('response_set__chosen_option', 'quiz_id__questions__option_set').first()
                 if not attempt:
                     return Response({'message': 'Quiz attempt not found'}, status=status.HTTP_404_NOT_FOUND)
 
                 # Map questions to responses
                 question_to_response = {res.question_id.id: res for res in attempt.response_set.all()}
                 questions = attempt.quiz_id.questions.prefetch_related('option_set').all()
-
+                
                 # Serialize the `Quiz_attempt` and its associated `Response` objects
                 quiz_attempt_data = {
+                    "id": attempt.id,
                     "quiz_id": attempt.quiz_id.id,
                     "score": attempt.score,
                     "status": attempt.status,
@@ -1032,7 +1032,7 @@ class UserQuizResponseView(GenericAPIView):
                             "option_3": opt[2].option if len(opt) > 2 else None,
                             "option_4_id": opt[3].id if len(opt) > 3 else None,
                             "option_4": opt[3].option if len(opt) > 3 else None,
-                            "chosen_option_id": question_to_response.get(ques.id).chosen_option.id if ques.id in question_to_response else None
+                            "chosen_option_id": getattr(question_to_response.get(ques.id).chosen_option, 'id', None) if ques.id in question_to_response else None
                         }
                         for ques in questions
                         for opt in [list(ques.option_set.all())]  # Fetch options only once per question
@@ -1057,7 +1057,9 @@ class UserQuizResponseView(GenericAPIView):
                     question_to_response = {res.question_id.id: res for res in attempt.response_set.all()}
                     questions = attempt.quiz_id.questions.prefetch_related('option_set').all()
 
+
                     quiz_attempt_data = {
+                        "id": attempt.id,
                         "quiz_id": attempt.quiz_id.id,
                         "score": attempt.score,
                         "status": attempt.status,
@@ -1074,7 +1076,7 @@ class UserQuizResponseView(GenericAPIView):
                                 "option_3": opt[2].option if len(opt) > 2 else None,
                                 "option_4_id": opt[3].id if len(opt) > 3 else None,
                                 "option_4": opt[3].option if len(opt) > 3 else None,
-                                "chosen_option_id": question_to_response.get(ques.id).chosen_option.id if ques.id in question_to_response else None
+                                "chosen_option_id": getattr(question_to_response.get(ques.id).chosen_option, 'id', None) if ques.id in question_to_response else None
                             }
                             for ques in questions
                             for opt in [list(ques.option_set.all())]
@@ -1096,10 +1098,178 @@ class UserQuizResponseView(GenericAPIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class SaveQuizView(GenericAPIView):
-    pass
+    permission_classes = [IsAuthenticated]
+    serializer_class = QuizSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = User.objects.get(email=request.user)
+            responses = serializer.validated_data.pop('responses')
+            quiz_attempt = serializer.validated_data.get("quiz_attempt_id")
+            score = 0
+            sta = "STA"
+            with transaction.atomic():
+
+                for response in responses:
+                    if response['chosen_option']:
+                        if sta != "MID":
+                            sta = "MID"
+                        correct_option = Option.objects.filter(question_id=response['question_id'], is_answer=True).first()
+                        if correct_option == response['chosen_option']:
+                            score += 1
+                responses_data = []
+                
+                if quiz_attempt:
+                    if quiz_attempt.taken_by == user:
+                        if quiz_attempt.status == "FIN":
+                            return Response({'message': 'This quiz has been submitted succesfully'}, status=status.HTTP_403_FORBIDDEN)
+                        setattr(quiz_attempt, "score", score)
+                        setattr(quiz_attempt, "status", sta)
+                        quiz_attempt.save()
+                        # Fetch old responses mapped by question_id for quick lookup
+                        old_responses = {resp.question_id: resp for resp in quiz_attempt.response_set.all()}
+                        for response_data in responses:
+                            question_id = response_data.get('question_id')
+                            chosen_option = response_data.get('chosen_option')
+
+                            # Find the existing response by question_id
+                            existing_response = old_responses.get(question_id)
+
+                            if existing_response and chosen_option is not None:
+                                # Update the chosen_option if it's not null
+                                existing_response.chosen_option = chosen_option
+                                existing_response.save()
+                                responses_data.append(existing_response)
+                    else:
+                        return Response({'message': "You don't have permission to save this quiz"}, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    # Create a new quiz attempt
+                    quiz_attempt = Quiz_attempt.objects.create(
+                        quiz_id=serializer.validated_data.get('quiz_id'),
+                        taken_by=user,
+                        score=score,
+                        status=sta
+                    )
+                    for response in responses:
+                        res = ResponseModel.objects.create(quiz_attempt=quiz_attempt, **response)
+                        responses_data.append(res)
+            
+            out_serializer = ResponseSerializer(many=True, instance=responses_data)
+
+            response_data = {
+                "quiz_attempt_id": quiz_attempt.id,
+                "quiz_id": quiz_attempt.quiz_id.id,
+                "resposes": out_serializer.data
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SubmitQuizView(GenericAPIView):
-    pass
+    permission_classes = [IsAuthenticated]
+    serializer_class = QuizSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = User.objects.get(email=request.user)
+            responses = serializer.validated_data.pop('responses')
+            quiz_attempt = serializer.validated_data.get("quiz_attempt_id")
+            score = 0
+            sta = "FIN"
+            with transaction.atomic():
+
+                for response in responses:
+                    if response['chosen_option']:
+                        correct_option = Option.objects.filter(question_id=response['question_id'], is_answer=True).first()
+                        if correct_option == response['chosen_option']:
+                            score += 1
+                responses_data = []
+                
+                if quiz_attempt:
+                    if quiz_attempt.taken_by == user:
+                        if quiz_attempt.status == "FIN":
+                            return Response({'message': 'This quiz has been submitted succesfully'}, status=status.HTTP_403_FORBIDDEN)
+                        setattr(quiz_attempt, "score", score)
+                        setattr(quiz_attempt, "status", sta)
+                        quiz_attempt.save()
+                        # Fetch old responses mapped by question_id for quick lookup
+                        old_responses = {resp.question_id: resp for resp in quiz_attempt.response_set.all()}
+                        for response_data in responses:
+                            question_id = response_data.get('question_id')
+                            chosen_option = response_data.get('chosen_option')
+
+                            # Find the existing response by question_id
+                            existing_response = old_responses.get(question_id)
+
+                            if existing_response and chosen_option is not None:
+                                # Update the chosen_option if it's not null
+                                existing_response.chosen_option = chosen_option
+                                existing_response.save()
+                                responses_data.append(existing_response)
+                    else:
+                        return Response({'message': "You don't have permission to save this quiz"}, status=status.HTTP_401_UNAUTHORIZED)
+                else:
+                    # Create a new quiz attempt
+                    quiz_attempt = Quiz_attempt.objects.create(
+                        quiz_id=serializer.validated_data.get('quiz_id'),
+                        taken_by=user,
+                        score=score,
+                        status=sta
+                    )
+                    for response in responses:
+                        res = ResponseModel.objects.create(quiz_attempt=quiz_attempt, **response)
+                        responses_data.append(res)
+            
+            out_serializer = ResponseSerializer(many=True, instance=responses_data)
+
+            response_data = {
+                "quiz_attempt_id": quiz_attempt.id,
+                "quiz_id": quiz_attempt.quiz_id.id,
+                "resposes": out_serializer.data
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CreateQuizView(GenericAPIView):
-    pass
+    permission_classes = [IsAuthenticated]
+    serializer_class = CreateQuizSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=False):
+            user = User.objects.get(email=request.user)
+            if user.user_role not in ['EDU', 'SUP', 'AIG']:
+                return Response({'message': 'Unauthorised request'}, status=status.HTTP_401_UNAUTHORIZED)
+            questions = serializer.validated_data.pop('questions')
+            question_list = []
+            q_ids = []
+            num = 0
+            for question in questions:
+                num += 1
+                options = question.pop('options')
+                if user.user_role == 'EDU':
+                    q_type = "EDQ"
+                elif user.user_role == 'SUP':
+                    q_type = "PAQ"
+                else:
+                    q_type = 'AIG'
+                ques_obj = Question.objects.create(created_by=user, question_type=q_type, **question)
+                q_ids.append(ques_obj.id)
+                ques_list = model_to_dict(ques_obj)
+                option_list = []
+                for option in options:
+                    opt_obj = Option.objects.create(question_id=ques_obj, **option)
+                    option_list.append(model_to_dict(opt_obj))
+                ques_list['options'] = option_list
+                question_list.append(ques_list)
+            quiz = Quiz.objects.create(num_of_questions=num, created_by=user, **serializer.validated_data)
+            quiz_questions_queryset = Question.objects.filter(id__in=q_ids)
+            quiz.questions.add(*quiz_questions_queryset)
+
+            return_data = model_to_dict(quiz)
+            return_data['questions'] = question_list
+            return Response(return_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -22,6 +22,8 @@
   ```
   Going forward, like when you restart your laptop, you just need to run `docker container start mysql-db`
 - Rename the .environ.test file to .environ, and update the EMAIL_USER and EMAIL_APP_PASSWORD variable to your gmail value. Research on how to get it. This will enable OTP to be sent when registering users. Also add your openai key with access to gpt-4o-mini model.
+- make database migrations `python3 manage.py makemigrations`
+- migrate database `python3 manage.py migrate`
 - start the application: You can use gunicorn web server or django builtin server:
   `gunicorn studypadi.wsgi:application --bind 0.0.0.0:8000`
   OR
@@ -262,7 +264,7 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 - user/quiz/prefilled/  :same as above just prefilled quiz 
 - user/quiz/realtime/  :same as above, just realtime quiz
 - user/quiz/revision-test/ :same as above, just revision-test quiz
-- user/quiz/response/ quiid=<> : returns a quiz or all quiz of a user, with all questions, options, and choses option of the user
+- user/quiz/response/ id=<> : returns a taken quiz or all quizzes of a user, with all questions, options, and choses option of the user
 - quiz/  :returns a list of quizzes following the support query strings. precedence is as follows quizid > educatorid > topicid > sectionid > submoduleid > moduleid > quizname == educatorname == search
 - quiz/question/  :returns all questions associated with a quiz provided by the quizid parameter
 - quiz/generate/ :generate quiz by applying the following filter (module, submodule, section, topic, question_type, difficulty, algorithm), where:
@@ -287,7 +289,74 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 - submit-material/ :receives a JSON with name, num_of_questions, and text fields. The name represent the name of the quiz that would be generated. num_of-questions represent the num of question you want generated, and text represent the study material text that questions would be generated out of.
 - question/ :get all questions or a single question if you provide the id of the question in a query parameter 'id'
 - question/create/ :takes in a list of questions each with all their associated options. 
-
-- quiz/save/ 
-- quiz/submit/ 
-- quiz/create/ 
+- quiz/save/ :takes the following: and returns same with populated ids
+```
+{
+  "quiz_attempt_id": 18,
+	"quiz_id": 1,
+	"responses":
+	[
+		{
+      "question_id": 2,
+      "chosen_option": 7
+		},
+		{
+      "question_id": 1,
+      "chosen_option": 2
+		}
+	]
+}
+```
+- quiz/submit/ :same as above but changes the status to FIN. Submitted quiz cannot be edited and saved
+- quiz/create/ :for creating quiz. Takes the following and returns same with popuated IDs
+```
+{
+    "name": "new quiz",
+    "questions": [
+        {
+            "question": "What is the name of the Developer of this App",
+            "difficulty": "EAS",
+            "options": [
+                {
+                    "option": "Blossom",
+                    "is_answer": true
+                },
+                {
+                    "option": "David",
+                    "is_answer": false
+                },
+                {
+                    "option": "Joe",
+                    "is_answer": false
+                },
+                {
+                    "option": "Jane",
+                    "is_answer": false
+                }
+            ]
+        },
+        {
+            "question": "What is the Diameter of the Earth",
+            "difficulty": "EAS",
+            "options": [
+                {
+                    "option": "10000km",
+                    "is_answer": true
+                },
+                {
+                    "option": "12000",
+                    "is_answer": false
+                },
+                {
+                    "option": "13000",
+                    "is_answer": false
+                },
+                {
+                    "option": "3600km",
+                    "is_answer": true
+                }
+            ]
+        }
+    ]
+}
+```
