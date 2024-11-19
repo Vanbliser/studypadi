@@ -221,6 +221,7 @@ Implemented 2FA for user creation. an email is sent to the registered email addr
 ## main
 
 ### Endpoints
+Note that a postman collection has been addesd to this repo
 
 #### GET POST and PATCH request
 - api/v1/modules/?id=<> | size=<> page=<> GET/POST/PATCH

@@ -1,0 +1,753 @@
+{
+	"info": {
+		"_postman_id": "b9e20dc7-b717-4ef5-9ce4-49b3de8b2500",
+		"name": "StudyPadi-API",
+		"description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" alt=\"\" height=\"1530\" width=\"2162\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "21733542",
+		"_collection_link": "https://red-resonance-323206.postman.co/workspace/New-Team-Workspace~32fea1c0-6405-4eee-be26-10f8221facb0/collection/21733542-b9e20dc7-b717-4ef5-9ce4-49b3de8b2500?action=share&source=collection_link&creator=21733542"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Signup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"abc@email.com\",\n    \"first_name\": \"Abc\",\n    \"last_name\": \"Xyz\",\n    \"password\": \"Password123\",\n    \"confirm_password\": \"Password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{auth_base_url}}/signup/",
+						"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify-otp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"otp\": 210835,\n    \"email\": \"abc@email.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{auth_base_url}}/verify-otp/"
+					},
+					"response": []
+				},
+				{
+					"name": "Resend-otp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"abc1@email.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{auth_base_url}}/resend-otp/"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"password123\",\n    \"email\": \"stu@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{auth_base_url}}/login/"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh-token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczMjExNDY1OSwiaWF0IjoxNzMyMDI4MjU5LCJqdGkiOiJkMzYxNTc4M2VlMWI0ZjVlYjJjODEyMTI1Y2VlZGY2NiIsInVzZXJfaWQiOjJ9.38HtthvY34KXJ_Q4SceaX6BiAkBrSjcWDTXlrtP4r7U\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{auth_base_url}}/refresh-token/"
+					},
+					"response": []
+				},
+				{
+					"name": "Forget-password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"abc1@email.com\",\n    \"base_url\": \"http://127.0.0.1:8000\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{auth_base_url}}/forget-password/"
+					},
+					"response": []
+				},
+				{
+					"name": "Set-password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"uidBase64\": \"OA\",\n    \"token\": \"cfto6q-4b7f5313f959e9275a242c52244fb623\",\n    \"new_password\": \"1234567\",\n    \"confirm_password\": \"1234567\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{auth_base_url}}/reset/"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": "{{auth_base_url}}/logout/"
+					},
+					"response": []
+				},
+				{
+					"name": "Testauth",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMxMjI4MDExLCJpYXQiOjE3MzEyMjcxMTEsImp0aSI6IjZkOGI2M2JmODA5NjQ4MzFiODhiZGI2MzYwNmU2NzdlIiwidXNlcl9pZCI6MX0.0PvYqhwCfNsUEWR7gtleQMw0srCKIZyngduExF_zpJ0",
+								"type": "text"
+							}
+						],
+						"url": "{{auth_base_url}}/test-auth/"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Main",
+			"item": [
+				{
+					"name": "Modules",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{main_base_url}}/modules/?page=1",
+							"host": [
+								"{{main_base_url}}"
+							],
+							"path": [
+								"modules",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modules",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"title\": \"New Module\",\n        \"description\": \"This is a new demo\"\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/modules/"
+					},
+					"response": []
+				},
+				{
+					"name": "Modules",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"id\": \"14\",\n        \"title\": \"New Module 14\"\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/modules/"
+					},
+					"response": []
+				},
+				{
+					"name": "Submodules",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/submodules/"
+					},
+					"response": []
+				},
+				{
+					"name": "Submodules",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"module_id\": 12,\n        \"title\": \"Demo Submodule\",\n        \"description\": \"This is a new demo\"\n    },\n    {\n        \"id\": 23,\n        \"module_id\": 12,\n        \"title\": \"update Demo23\",\n        \"description\": \"This is a new demo\"\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/submodules/"
+					},
+					"response": []
+				},
+				{
+					"name": "Submodules",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"title\": \"Demo6\",\n        \"description\": \"This is a new demo\"\n    },\n    {\n        \"id\": 3,\n        \"title\": \"update patch Demo23\",\n        \"description\": \"This is a new demo\"\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/submodules/"
+					},
+					"response": []
+				},
+				{
+					"name": "Sections",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/sections/"
+					},
+					"response": []
+				},
+				{
+					"name": "Sections",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"id\": 5,\n        \"title\": \"new 5\",\n        \"description\": \"This is a new demo\",\n        \"submodule_id\": 1\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/sections/"
+					},
+					"response": []
+				},
+				{
+					"name": "Sections",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"id\": 2,\n        \"title\": \"new patch\",\n        \"description\": \"This is a new demo\",\n        \"submodule_id\": 1\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/sections/"
+					},
+					"response": []
+				},
+				{
+					"name": "Topics",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/topics/"
+					},
+					"response": []
+				},
+				{
+					"name": "Topics",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"title\": \"new 4\",\n        \"description\": \"This is a new demo\",\n        \"section_id\": 1\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/topics/"
+					},
+					"response": []
+				},
+				{
+					"name": "Topics",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"id\": 2,\n        \"section_id\": 1,\n        \"title\": \"new 2\",\n        \"description\": \"This is a new demo\"\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/topics/"
+					},
+					"response": []
+				},
+				{
+					"name": "User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{main_base_url}}/user"
+					},
+					"response": []
+				},
+				{
+					"name": "User quizzes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{main_base_url}}/user/quiz/"
+					},
+					"response": []
+				},
+				{
+					"name": "User revision test quizzes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{main_base_url}}/user/quiz/revision-test/"
+					},
+					"response": []
+				},
+				{
+					"name": "User prefilled quizzes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{main_base_url}}/user/quiz/prefilled/"
+					},
+					"response": []
+				},
+				{
+					"name": "User realtime quizzes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{main_base_url}}/user/quiz/realtime/"
+					},
+					"response": []
+				},
+				{
+					"name": "User quiz response",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{main_base_url}}/user/quiz/response/?id=18",
+							"host": [
+								"{{main_base_url}}"
+							],
+							"path": [
+								"user",
+								"quiz",
+								"response",
+								""
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "18"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Quiz",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quizid\": 3,\n    \"name\": \"My quiz\",\n    \"module\": null,\n    \"submodule\": null,\n    \"section\": null,\n    \"topic\": null,\n    \"number_of_questions\": 2,\n    \"created_at\": \"2024-11-16T11:27:22.999119Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/quiz/"
+					},
+					"response": []
+				},
+				{
+					"name": "Quiz question",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{main_base_url}}/quiz/question/?quizid=12",
+							"host": [
+								"{{main_base_url}}"
+							],
+							"path": [
+								"quiz",
+								"question",
+								""
+							],
+							"query": [
+								{
+									"key": "quizid",
+									"value": "12"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save quiz",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"quiz_attempt_id\": 18,\n\t\"quiz_id\": 1,\n\t\"responses\":\n\t[\n\t\t{\n\t\t    \"question_id\": 2,\n\t\t    \"chosen_option\": 7\n\t\t},\n\t\t{\n\t\t    \"question_id\": 1,\n\t\t    \"chosen_option\": 2\n\t\t}\n\t]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/quiz/save/"
+					},
+					"response": []
+				},
+				{
+					"name": "Submit quiz",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": "{{main_base_url}}/quiz/submit/"
+					},
+					"response": []
+				},
+				{
+					"name": "Create quiz",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"new quiz\",\n    \"questions\": [\n        {\n            \"question\": \"What is the name of the Developer of this App\",\n            \"difficulty\": \"EAS\",\n            \"options\": [\n                {\n                    \"option\": \"Blossom\",\n                    \"is_answer\": true\n                },\n                {\n                    \"option\": \"DAvid\",\n                    \"is_answer\": false\n                },\n                {\n                    \"option\": \"Joe\",\n                    \"is_answer\": false\n                },\n                {\n                    \"option\": \"Jane\",\n                    \"is_answer\": false\n                }\n            ]\n        },\n        {\n            \"question\": \"What is the Diameter of the Earth\",\n            \"difficulty\": \"EAS\",\n            \"options\": [\n                {\n                    \"option\": \"10000km\",\n                    \"is_answer\": true\n                },\n                {\n                    \"option\": \"12000\",\n                    \"is_answer\": false\n                },\n                {\n                    \"option\": \"13000\",\n                    \"is_answer\": false\n                },\n                {\n                    \"option\": \"3600km\",\n                    \"is_answer\": true\n                }\n            ]\n        },\n        {\n            \"question\": \"What is the name of the Developer of this App\",\n            \"difficulty\": \"EAS\",\n            \"options\": [\n                {\n                    \"option\": \"Blossom\",\n                    \"is_answer\": true\n                },\n                {\n                    \"option\": \"DAvid\",\n                    \"is_answer\": false\n                },\n                {\n                    \"option\": \"Joe\",\n                    \"is_answer\": false\n                },\n                {\n                    \"option\": \"Jane\",\n                    \"is_answer\": false\n                }\n            ]\n        },\n        {\n            \"question\": \"What is the name of the Developer of this App\",\n            \"difficulty\": \"EAS\",\n            \"options\": [\n                {\n                    \"option\": \"Blossom\",\n                    \"is_answer\": true\n                },\n                {\n                    \"option\": \"DAvid\",\n                    \"is_answer\": false\n                },\n                {\n                    \"option\": \"Joe\",\n                    \"is_answer\": false\n                },\n                {\n                    \"option\": \"Jane\",\n                    \"is_answer\": false\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/quiz/create/"
+					},
+					"response": []
+				},
+				{
+					"name": "Generate quiz",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My quiz\",\n    \"question_type\": \"ALL\",\n    \"difficulty\": \"EMD\",\n    \"algorithm\": \"RAD\",\n    \"num_of_questions\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/quiz/generate/"
+					},
+					"response": []
+				},
+				{
+					"name": "Question",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{main_base_url}}/question/?id=12",
+							"host": [
+								"{{main_base_url}}"
+							],
+							"path": [
+								"question",
+								""
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "12"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create question",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"difficulty\": \"HRD\",\n        \"question\": \"What is the name of the Backend developer for this application\",\n        \"options\": [\n            {\n                \"option\": \"Blossom\",\n                \"is_answer\": true\n            },\n            {\n                \"option\": \"Milan\",\n                \"is_answer\": false\n            },\n            {\n                \"option\": \"Napoli\",\n                \"is_answer\": false\n            },\n            {\n                \"option\": \"Juventus\",\n                \"is_answer\": false\n            }\n        ]\n        \n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/question/create/"
+					},
+					"response": []
+				},
+				{
+					"name": "Submit material",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Anatomy quiz\",\n    \"num_of_questions\": 8,\n    \"level\": \"High School\",\n    \"text\": \"Anatomy is the branch of biology that studies the structure of organisms and their parts, forming a foundation for understanding the human body’s functions and its relationship with other living beings. It is divided into several branches, including gross anatomy, which examines structures visible to the naked eye; microscopic anatomy, which studies cells (cytology) and tissues (histology); developmental anatomy, focusing on growth from fertilization to adulthood; comparative anatomy, comparing species to understand evolutionary relationships; and clinical anatomy, applying anatomical knowledge in medical practice. The human body is organized into hierarchical levels: cells, the basic unit of life; tissues, groups of similar cells performing functions, such as epithelial, connective, muscle, and nervous tissues; organs, structures like the heart and lungs composed of multiple tissue types; organ systems, such as the cardiovascular, nervous, digestive, and skeletal systems, working together to perform complex functions; and the organism, the complete living entity. The skeletal system, composed of 206 bones in adults, is divided into the axial skeleton (skull, vertebral column, rib cage) and the appendicular skeleton (limbs and girdles), providing support, protection, movement, and blood cell production. The muscular system facilitates movement and includes skeletal (voluntary), smooth (involuntary in organs), and cardiac (heart) muscles. The nervous system, comprising the central nervous system (CNS) and peripheral nervous system (PNS), controls and coordinates body functions, processing sensory input and initiating responses. Understanding anatomy is essential for diagnosing diseases, conducting medical procedures, and comprehending the body’s reactions to various conditions, making it a cornerstone for students pursuing healthcare and biological sciences.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{main_base_url}}/submit-material/"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": {
+					"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMyMDcyMjUzLCJpYXQiOjE3MzIwNTQyNTMsImp0aSI6IjgwY2I0OWQ5ZTk5ZjQ3NTliYWUxYTVlZThjMzFhZTE5IiwidXNlcl9pZCI6M30.weEyQk-7LwN-Ycn0-7_F1b4E2y-BE-Ne3IdlfBFy5VQ"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8000/test/"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "auth_base_url",
+			"value": "http://127.0.0.1:8000/api/v1/auth",
+			"type": "string"
+		},
+		{
+			"key": "main_base_url",
+			"value": "http://127.0.0.1:8000/api/v1",
+			"type": "string"
+		}
+	]
+}
